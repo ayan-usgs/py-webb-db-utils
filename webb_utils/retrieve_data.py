@@ -10,7 +10,7 @@ from local_connect import SCHEMA, PWD, DB
 
 class RetrieveData(object):
     
-    def __init__(self, schema, password, db_name):
+    def __init__(self, schema, password, db_name, excel_indexes=False):
         self.acdb = AlchemDB(schema, password, db_name)
         self.session = self.acdb.create_session()
         self.uv_sites = ("'North Mid bank well','North Mid streambed well','North Middle','Stevenson Headwaters','Stevenson bank well',"
@@ -25,6 +25,7 @@ class RetrieveData(object):
                                    "'TS-30 streambed well','Well A1-10WT','Well IS-K106','Well M-05.1','Well M-15.1','Well M-15.2','Well T1-10WT',"
                                    "'Well T1-15WT','Well T1-70WT','Well T2-15WT','Well T2-90WT','Well T5-10WT','Well T5-20WT','Well T5-30WT','Well T5-60.80'"
                                    )
+        self.exind = excel_indexes
     
     def _create_dataframe(self, data, columns):
         try:
@@ -45,7 +46,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(WELL_DATUMS).all()
         df = self._create_dataframe(data=result_set, columns=tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_well_uvs(self, start_date, end_date, sites=None, excel_export_path=None):
@@ -59,7 +60,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).params(EndUVDate=end_date, StartUVDate=start_date).all()
         df = self._create_dataframe(data=result_set, columns=tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_carbon_data(self, start_date, end_date, groups=None, excel_export_path=None):
@@ -73,7 +74,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, columns=tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_data_with_uv(self, start_date, end_date, groups=None, excel_export_path=None):
@@ -87,7 +88,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_well_check_values(self, start_date, end_date, sites=None, excel_export_path=None):
@@ -101,7 +102,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).params(EndDT=end_date, StartDT=start_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_piezo_sites(self, start_date, end_date, groups=None, excel_export_path=None):
@@ -115,7 +116,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
     def get_site_info(self, excel_export_path=None):
@@ -125,7 +126,7 @@ class RetrieveData(object):
         result_set = query_base.from_statement(sql_statement).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=False)
+            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
         
     
