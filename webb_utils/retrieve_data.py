@@ -55,7 +55,7 @@ class RetrieveData(object):
             selected_sites = sites
         columns = ['depth_above_sensor', 'result_datetime']
         query_base = self.session.query(*columns)
-        sql_statement = WELL_UVS % selected_sites
+        sql_statement = str(WELL_UVS).format(sites=selected_sites)
         result_set = query_base.from_statement(sql_statement).params(EndUVDate=end_date, StartUVDate=start_date).all()
         df = self._create_dataframe(data=result_set, columns=tuple(columns))
         if excel_export_path:
@@ -69,7 +69,7 @@ class RetrieveData(object):
             selected_grps = groups
         columns = ['station_no', 'short_name', 'sample_date', 'wtemp']
         query_base = self.session.query(*columns)
-        sql_statement = WITH_DATA % selected_grps
+        sql_statement = str(WITH_DATA).format(groups=selected_grps)
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, columns=tuple(columns))
         if excel_export_path:
@@ -83,7 +83,7 @@ class RetrieveData(object):
             selected_grps = groups
         columns = ['station_no', 'short_name', 'sample_date', 'record_number', 'alkalinity']
         query_base = self.session.query(*columns)
-        sql_statement = DATA_WITH_UV % selected_grps
+        sql_statement = str(DATA_WITH_UV).format(groups=selected_grps)
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
@@ -97,7 +97,7 @@ class RetrieveData(object):
             selected_sites = sites
         columns = ['short_name', 'meas_date', 'ngvd_ws_elev', 'ws_elev', 'depth_to_ws', 'local_mp_elev', 'ngvd_mp_elev', 'station_no']
         query_base = self.session.query(*columns)
-        sql_statement = WELL_CK_VALUES % selected_sites
+        sql_statement = str(WELL_CK_VALUES).format(sites=selected_sites)
         result_set = query_base.from_statement(sql_statement).params(EndDT=end_date, StartDT=start_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
@@ -111,7 +111,7 @@ class RetrieveData(object):
             selected_grps = groups
         columns = ['station_no', 'station_name', 'sample_date', 'record_number', 'tic', 'toc']
         query_base = self.session.query(*columns)
-        sql_statement = PIEZO_SITES % selected_grps
+        sql_statement = str(PIEZO_SITES).format(groups=selected_grps)
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
         df = self._create_dataframe(result_set, tuple(columns))
         if excel_export_path:
