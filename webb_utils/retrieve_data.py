@@ -11,7 +11,6 @@ from sites import UV_SITES, WELL_CHECK_VALUE_SITES, SITE_GROUPS
 from local_connect import SCHEMA, PWD, DB
 
 
-
 class RetrieveData(object):
     
     def __init__(self, schema, password, db_name, excel_indexes=False):
@@ -49,13 +48,14 @@ class RetrieveData(object):
             selected_sites = create_db_filter_str(self.uv_sites)
         else:
             selected_sites = create_db_filter_str(sites)
-        columns = ['depth_above_sensor', 'result_datetime']
+        columns = ['result_datetime', 'depth_above_sensor']
+        display_columns = ('result_datetime', 'depth_above_sensor (m)')
         query_base = self.session.query(*columns)
         sql_statement = str(WELL_UVS).format(sites=selected_sites)
         result_set = query_base.from_statement(sql_statement).params(EndUVDate=end_date, StartUVDate=start_date).all()
-        df = self._create_dataframe(data=result_set, columns=tuple(columns))
+        df = self._create_dataframe(data=result_set, columns=display_columns)
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
+            df.to_excel(excel_export_path, columns=display_columns, index=self.exind)
         return df
     
     def get_carbon_data(self, start_date, end_date, groups=None, excel_export_path=None):
@@ -63,7 +63,7 @@ class RetrieveData(object):
             selected_grps = create_db_filter_str(self.grps)
         else:
             selected_grps = create_db_filter_str(groups)
-        columns = ['station_no', 'short_name', 'sample_date', 'wtemp']
+        columns = ['station_no', 'short_name', 'record_number', 'sample_date', 'wtemp']
         query_base = self.session.query(*columns)
         sql_statement = str(WITH_DATA).format(groups=selected_grps)
         result_set = query_base.from_statement(sql_statement).params(StartDate=start_date, EndDate=end_date).all()
@@ -92,12 +92,13 @@ class RetrieveData(object):
         else:
             selected_sites = create_db_filter_str(sites)
         columns = ['short_name', 'meas_date', 'ngvd_ws_elev', 'ws_elev', 'depth_to_ws', 'local_mp_elev', 'ngvd_mp_elev', 'station_no']
+        display_columns = ('short_name', 'meas_date', 'ngvd_ws_elev (m)', 'ws_elev', 'depth_to_ws', 'local_mp_elev', 'ngvd_mp_elev', 'station_no')
         query_base = self.session.query(*columns)
         sql_statement = str(WELL_CK_VALUES).format(sites=selected_sites)
         result_set = query_base.from_statement(sql_statement).params(EndDT=end_date, StartDT=start_date).all()
-        df = self._create_dataframe(result_set, tuple(columns))
+        df = self._create_dataframe(result_set, display_columns)
         if excel_export_path:
-            df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
+            df.to_excel(excel_export_path, columns=display_columns, index=self.exind)
         return df
     
     def get_piezo_sites(self, start_date, end_date, groups=None, excel_export_path=None):
