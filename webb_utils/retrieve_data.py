@@ -8,7 +8,6 @@ import pandas as pd
 from db_utils import AlchemDB, create_db_filter_str
 from base_sql import WELL_DATUMS, WELL_UVS, WITH_DATA, DATA_WITH_UV, WELL_CK_VALUES, PIEZO_SITES, SITE_INFO
 from sites import UV_SITES, WELL_CHECK_VALUE_SITES, SITE_GROUPS
-from local_connect import SCHEMA, PWD, DB
 
 
 class RetrieveData(object):
@@ -124,26 +123,3 @@ class RetrieveData(object):
         if excel_export_path:
             df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
-        
-    
-if __name__ == '__main__':
-    
-    START_DATE = '01-OCT-2006'
-    END_DATE = '30-SEP-2007'
-    rd = RetrieveData(SCHEMA, PWD, DB)
-    gwd = rd.get_well_datums(excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\well_datums.xlsx')
-    print(gwd)
-    gwu = rd.get_well_uvs(START_DATE, END_DATE, excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\well_uvs.xlsx')
-    print(gwu)
-    gcd = rd.get_carbon_data(START_DATE, END_DATE, excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\carbon_data.xlsx')
-    print(gcd)
-    gdu = rd.get_data_with_uv(START_DATE, END_DATE, excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\data_uv.xlsx')
-    print(gdu)
-    gwcv = rd.get_well_check_values(START_DATE, END_DATE, excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\check_values.xlsx')
-    print(gwcv)
-    gps = rd.get_piezo_sites(START_DATE, END_DATE, excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\piezo_sites.xlsx')
-    print(gps)
-    sites = rd.get_site_info(excel_export_path='C:\\Users\\ayan\\Desktop\\tmp\\site_info.xlsx')
-    print(sites)
-    rd.close_session()
-    
