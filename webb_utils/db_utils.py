@@ -8,6 +8,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
+def create_db_filter_str(param_list):
+    quoted_list = ["'{0}'".format(param) for param in param_list]
+    filter_str = ','.join(quoted_list)
+    return filter_str
+
+
 class AlchemDB(object): 
     
     def __init__(self, schema, password, db_name):

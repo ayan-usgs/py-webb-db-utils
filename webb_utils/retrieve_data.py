@@ -3,28 +3,23 @@ Created on Aug 27, 2014
 
 @author: ayan
 '''
+
 import pandas as pd
-from db_utils import AlchemDB
+from db_utils import AlchemDB, create_db_filter_str
 from base_sql import WELL_DATUMS, WELL_UVS, WITH_DATA, DATA_WITH_UV, WELL_CK_VALUES, PIEZO_SITES, SITE_INFO
+from sites import UV_SITES, WELL_CHECK_VALUE_SITES, SITE_GROUPS
 from local_connect import SCHEMA, PWD, DB
+
+
 
 class RetrieveData(object):
     
     def __init__(self, schema, password, db_name, excel_indexes=False):
         self.acdb = AlchemDB(schema, password, db_name)
         self.session = self.acdb.create_session()
-        self.uv_sites = ("'North Mid bank well','North Mid streambed well','North Middle','Stevenson Headwaters','Stevenson bank well',"
-                         "'Stevenson baro','Stevenson hw bank well','Stevenson hw streambed well','Stevenson streambed well','TS-30 bank well',"
-                         "'TS-30 streambed well','Well A1-10WT','Well IS-K106','Well M-05.1','Well M-15.1','Well M-15.2','Well T1-10WT','Well T1-15WT',"
-                         "'Well T1-70WT','Well T2-15WT','Well T2-90WT','Well T5-10WT','Well T5-20WT','Well T5-30WT','Well T5-60.80','Well T5-60WT','Well T5-95WT'")
-        self.grps = ("'FC_C1','FC_LS','FC_US','FP_IS','FP_LB','FP_T1','FP_T2','FP_T3','FP_T4','FP_T5','G_LYS','HW_LS','HW_MS','HW_US','HYPO','INVERT',"
-                     "'LAKE','MISC','PPT','P_LYS','SOILM','S_GAS','S_LYS','TENS','TRIBS'")
-        self.well_ck_vals_sites = (
-                                   "'North Mid bank well','North Mid streambed well','North Middle','Stevenson Headwaters','Stevenson bank well',"
-                                   "'Stevenson baro','Stevenson hw bank well','Stevenson hw streambed well','Stevenson streambed well','TS-30 bank well',"
-                                   "'TS-30 streambed well','Well A1-10WT','Well IS-K106','Well M-05.1','Well M-15.1','Well M-15.2','Well T1-10WT',"
-                                   "'Well T1-15WT','Well T1-70WT','Well T2-15WT','Well T2-90WT','Well T5-10WT','Well T5-20WT','Well T5-30WT','Well T5-60.80'"
-                                   )
+        self.uv_sites = UV_SITES
+        self.grps = SITE_GROUPS
+        self.well_ck_vals_sites = WELL_CHECK_VALUE_SITES
         self.exind = excel_indexes
     
     def _create_dataframe(self, data, columns):
@@ -51,9 +46,9 @@ class RetrieveData(object):
     
     def get_well_uvs(self, start_date, end_date, sites=None, excel_export_path=None):
         if sites is None:
-            selected_sites = self.uv_sites
+            selected_sites = create_db_filter_str(self.uv_sites)
         else:
-            selected_sites = sites
+            selected_sites = create_db_filter_str(sites)
         columns = ['depth_above_sensor', 'result_datetime']
         query_base = self.session.query(*columns)
         sql_statement = str(WELL_UVS).format(sites=selected_sites)
@@ -65,9 +60,9 @@ class RetrieveData(object):
     
     def get_carbon_data(self, start_date, end_date, groups=None, excel_export_path=None):
         if groups is None:
-            selected_grps = self.grps
+            selected_grps = create_db_filter_str(self.grps)
         else:
-            selected_grps = groups
+            selected_grps = create_db_filter_str(groups)
         columns = ['station_no', 'short_name', 'sample_date', 'wtemp']
         query_base = self.session.query(*columns)
         sql_statement = str(WITH_DATA).format(groups=selected_grps)
@@ -79,9 +74,9 @@ class RetrieveData(object):
     
     def get_data_with_uv(self, start_date, end_date, groups=None, excel_export_path=None):
         if groups is None:
-            selected_grps = self.grps
+            selected_grps = create_db_filter_str(self.grps)
         else:
-            selected_grps = groups
+            selected_grps = create_db_filter_str(groups)
         columns = ['station_no', 'short_name', 'sample_date', 'record_number', 'alkalinity']
         query_base = self.session.query(*columns)
         sql_statement = str(DATA_WITH_UV).format(groups=selected_grps)
@@ -93,9 +88,9 @@ class RetrieveData(object):
     
     def get_well_check_values(self, start_date, end_date, sites=None, excel_export_path=None):
         if sites is None:
-            selected_sites = self.well_ck_vals_sites
+            selected_sites = create_db_filter_str(self.well_ck_vals_sites)
         else:
-            selected_sites = sites
+            selected_sites = create_db_filter_str(sites)
         columns = ['short_name', 'meas_date', 'ngvd_ws_elev', 'ws_elev', 'depth_to_ws', 'local_mp_elev', 'ngvd_mp_elev', 'station_no']
         query_base = self.session.query(*columns)
         sql_statement = str(WELL_CK_VALUES).format(sites=selected_sites)
@@ -107,9 +102,9 @@ class RetrieveData(object):
     
     def get_piezo_sites(self, start_date, end_date, groups=None, excel_export_path=None):
         if groups is None:
-            selected_grps = self.grps
+            selected_grps = create_db_filter_str(self.grps)
         else:
-            selected_grps = groups
+            selected_grps = create_db_filter_str(groups)
         columns = ['station_no', 'station_name', 'sample_date', 'record_number', 'tic', 'toc']
         query_base = self.session.query(*columns)
         sql_statement = str(PIEZO_SITES).format(groups=selected_grps)
