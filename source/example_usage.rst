@@ -1,12 +1,14 @@
 Example Usage
 **********************************
-Illustration of use of this package to retrieve data through
+Illustration of using this package to retrieve data through
 a Python interactive console.
 
 Data Retrieval
 ==================================
 This example is providing assuming that one is in the 
-py-webb-db-utils directory.
+py-webb-db-utils directory. These examples show MS Excel
+2007 exports being placed at C:/Users/joe/downloads/, but
+can be any appropriate directory.
 
 >>> from webb_utils.retrieve_data import RetrieveData
 >>> SCHEMA_NAME = 'my_schema'
