@@ -12,6 +12,21 @@ from sites import UV_SITES, WELL_CHECK_VALUE_SITES, SITE_GROUPS
 
 class RetrieveData(object):
     
+    """
+    Retrieve data object to execute and retrieve the results
+    of six database queries deemed important to the USGS WEBB
+    project.
+    
+    :param schema: schema user name
+    :type schema: string
+    :param password: schema user password
+    :type: string
+    :param db_name: database name
+    :type db_name: string
+    :param excel_indexes: whether an exported excel file should have Pandas dataframe indexes; default is false
+    :type excel_indexes: boolean
+    """
+    
     def __init__(self, schema, password, db_name, excel_indexes=False):
         self.acdb = AlchemDB(schema, password, db_name)
         self.session = self.acdb.create_session()
@@ -34,6 +49,12 @@ class RetrieveData(object):
         return 'Session closed.'
         
     def get_well_datums(self, excel_export_path=None):
+        """
+        Get well datums. Returns Pandas dataframe, optional excel export.
+        
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         columns = ['depth', 'short_name', 'station_no', 'local_mp_elev', 'ngvd_mp_elev']
         query_base = self.session.query(*columns)
         result_set = query_base.from_statement(WELL_DATUMS).all()
@@ -43,6 +64,18 @@ class RetrieveData(object):
         return df
     
     def get_well_uvs(self, start_date, end_date, sites=None, excel_export_path=None):
+        """
+        Get well UV data. Returns Pandas dataframe, optional excel export.
+        
+        :param start_date: start date for database query of form '01-JAN-2005'
+        :type start_date: string
+        :param end_date: end date for database query of form '01-JAN-2006'
+        :type end_date: string
+        :param sites: filter for sites
+        :type sites: iterable
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         if sites is None:
             selected_sites = create_db_filter_str(self.uv_sites)
         else:
@@ -58,6 +91,18 @@ class RetrieveData(object):
         return df
     
     def get_carbon_data(self, start_date, end_date, groups=None, excel_export_path=None):
+        """
+        Get carbon data. Returns Pandas dataframe, optional excel export.
+        
+        :param start_date: start date for database query of form '01-JAN-2005'
+        :type start_date: string
+        :param end_date: end date for database query of form '01-JAN-2006'
+        :type end_date: string
+        :param groups: filter for site groups
+        :type groups: iterable
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         if groups is None:
             selected_grps = create_db_filter_str(self.grps)
         else:
@@ -71,7 +116,19 @@ class RetrieveData(object):
             df.to_excel(excel_export_path, columns=tuple(columns), index=self.exind)
         return df
     
-    def get_data_with_uv(self, start_date, end_date, groups=None, excel_export_path=None):
+    def get_data_with_alkalinity(self, start_date, end_date, groups=None, excel_export_path=None):
+        """
+        Get data with alkalinity. Returns Pandas dataframe, optional excel export.
+         
+        :param start_date: start date for database query of form '01-JAN-2005'
+        :type start_date: string
+        :param end_date: end date for database query of form '01-JAN-2006'
+        :type end_date: string
+        :param groups: filter for site groups
+        :type groups: iterable
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         if groups is None:
             selected_grps = create_db_filter_str(self.grps)
         else:
@@ -86,6 +143,18 @@ class RetrieveData(object):
         return df
     
     def get_well_check_values(self, start_date, end_date, sites=None, excel_export_path=None):
+        """
+        Get well check values. Returns Pandas dataframe, optional excel export.
+        
+        :param start_date: start date for database query of form '01-JAN-2005'
+        :type start_date: string
+        :param end_date: end date for database query of form '01-JAN-2006'
+        :type end_date: string
+        :param sites: filter for sites
+        :type sites: iterable
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         if sites is None:
             selected_sites = create_db_filter_str(self.well_ck_vals_sites)
         else:
@@ -101,6 +170,19 @@ class RetrieveData(object):
         return df
     
     def get_piezo_sites(self, start_date, end_date, groups=None, excel_export_path=None):
+        """
+        Get total organic carbon and total inorganic carbon.
+        Returns Pandas dataframe, optional excel export.
+        
+        :param start_date: start date for database query of form '01-JAN-2005'
+        :type start_date: string
+        :param end_date: end date for database query of form '01-JAN-2006'
+        :type end_date: string
+        :param groups: filter for site groups
+        :type groups: iterable
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         if groups is None:
             selected_grps = create_db_filter_str(self.grps)
         else:
@@ -115,6 +197,13 @@ class RetrieveData(object):
         return df
     
     def get_site_info(self, excel_export_path=None):
+        """
+        Get site information (lat, lon, NWIS Station number, etc).
+        Returns Pandas dataframe, optional excel export.
+        
+        :param excel_export_path: path for MS Excel 2007 output (e.g. C:\\tmp\\my_export.xlsx; default None
+        :type excel_export_path: string or None
+        """
         columns = ['station_no', 'station_name', 'short_name', 'depth', 'latitude', 'longitude', 'dec_latitude', 'dec_longitude', 'nwis_station_no']
         query_base = self.session.query(*columns)
         sql_statement = SITE_INFO
