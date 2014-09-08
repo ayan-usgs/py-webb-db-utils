@@ -26,7 +26,7 @@ class RetrieveData(object):
     :param str schema: schema user name
     :param str password: schema user password
     :param str db_name: database name
-    :param bool excel_indexes: whether an exported excel file should have Pandas dataframe indexes; default is false
+    :param bool excel_indexes: whether an exported excel file should have Pandas dataframe indexes; default is False
     """
     
     def __init__(self, schema, password, db_name, excel_indexes=False):
