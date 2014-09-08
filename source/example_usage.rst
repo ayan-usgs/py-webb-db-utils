@@ -6,9 +6,9 @@ a Python interactive console.
 Data Retrieval
 ==================================
 This example is providing assuming that one is in the 
-py-webb-db-utils directory. These examples show MS Excel
-2007 exports being placed at C:/Users/joe/downloads/, but
-can be any appropriate directory.
+py-webb-db-utils has been installed as a package. These 
+examples show MS Excel 2007 exports being placed at 
+C:/Users/joe/downloads/, but can be any appropriate directory.
 
 >>> from webb_utils.retrieve_data import RetrieveData
 >>> SCHEMA_NAME = 'my_schema'
