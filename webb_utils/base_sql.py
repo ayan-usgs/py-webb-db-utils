@@ -2,6 +2,10 @@
 Created on Aug 27, 2014
 
 @author: ayan
+
+.. module:: base_sql
+    :platform: Unix, Windows, MacOS
+    :synopsis: SQL for database queries
 '''
 
 
