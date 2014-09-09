@@ -15,6 +15,7 @@ here for convenience. All of these packages may be installed using pip from the 
 - SQLAlchemy==0.9.7
 - cx-Oracle==5.1.3
 - numpy==1.8.1
+- openpyxl==1.8.6
 - pandas==0.14.1
 - python-dateutil==2.2
 - pytz==2014.4
