@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='WEBB_DB_UTILS',
+    name='webb-db-utils',
     version='0.1.0',
     author='Andrew Yan',
     author_email='ayan@usgs.gov',
