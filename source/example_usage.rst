@@ -38,3 +38,6 @@ C:/Users/joe/downloads/, but can be any appropriate directory.
 >>> sites = rd.get_site_info(excel_export_path='C:/Users/joe/downloads/site_info.xlsx')
 >>> # close the session
 >>> rd.close_session()
+
+Data Entry
+==================================
