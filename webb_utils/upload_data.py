@@ -34,6 +34,7 @@ class UploadData(object):
     
     def __init__(self, schema, password, db_name):
         self.acdb = AlchemDB(schema, password, db_name)
+        self.engine = self.acdb.engine
         self.session = self.acdb.create_session()
 
     def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='python', 
