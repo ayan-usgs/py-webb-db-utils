@@ -3,7 +3,7 @@ Created on Sep 9, 2014
 
 @author: ayan
 '''
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Float, Date, ForeignKeyConstraint
+from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, Float, Date, CHAR, ForeignKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -19,9 +19,9 @@ class Anion(Base):
     cl = Column(Float)
     no3 = Column(Float)
     so4 = Column(Float)
-    flagcl = Column(String)
-    flagno3 = Column(String)
-    flagso4 = Column(String)
+    flagcl = Column(CHAR)
+    flagno3 = Column(CHAR)
+    flagso4 = Column(CHAR)
     alkalinity_source = Column(String)
     alkalinity = Column(Float)
 
@@ -40,14 +40,14 @@ class Cation(Base):
     mn = Column(Float)
     fe = Column(Float)
     sr = Column(Float)
-    flagna = Column(String)
-    flagmg = Column(String)
-    flagsi = Column(String)
-    flagk = Column(String)
-    flagca = Column(String)
-    flagmn = Column(String)
-    flagfe = Column(String)
-    flagsr = Column(String)
+    flagna = Column(CHAR)
+    flagmg = Column(CHAR)
+    flagsi = Column(CHAR)
+    flagk = Column(CHAR)
+    flagca = Column(CHAR)
+    flagmn = Column(CHAR)
+    flagfe = Column(CHAR)
+    flagsr = Column(CHAR)
     
     
 class Carbon(Base):
@@ -60,10 +60,10 @@ class Carbon(Base):
     toc = Column(Float)
     uva_254 = Column(Float)
     uva_280 = Column(Float)
-    flagtic = Column(String)
-    flagtoc = Column(String)
-    flaguva_254 = Column(String)
-    flaguva_280 = Column(String)
+    flagtic = Column(CHAR)
+    flagtoc = Column(CHAR)
+    flaguva_254 = Column(CHAR)
+    flaguva_280 = Column(CHAR)
     
     
 class CarbonGas(Base):
@@ -74,8 +74,8 @@ class CarbonGas(Base):
     analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False, primary_key=True)
     ch4 = Column(Float)
     co2 = Column(Float)
-    flagch4 = Column(String)
-    flagco2 = Column(String)
+    flagch4 = Column(CHAR)
+    flagco2 = Column(CHAR)
     
 
 class DVResults(Base):
@@ -86,7 +86,7 @@ class DVResults(Base):
     parameter_code = Column(String, ForeignKey(u'parameters.parameter_code'), nullable=False, primary_key=True)
     result_date = Column(Date, nullable=False, primary_key=True)
     result_value = Column(Float)
-    dv_flag = Column(String, ForeignKey(u'dv_flag.flag'))
+    dv_flag = Column(CHAR, ForeignKey(u'dv_flag.flag'))
     
     
 class Field(Base):
@@ -153,8 +153,8 @@ class IsotopeStrontium(Base):
     analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False)
     sr87_sr86 = Column('SR_87#SR_86', Float)
     sr87 = Column('sr_87', Float)
-    flag_sr87_sr86 = Column('FLAGSR_87#SR_86', String)
-    flag_sr87 = Column('flagsr_87', String)
+    flag_sr87_sr86 = Column('FLAGSR_87#SR_86', CHAR) # must be aliased in retrievals as SQLAlchemy default name is too long
+    flag_sr87 = Column('flagsr_87', CHAR)
 
 
 class IsotopeWater(Base):
@@ -165,8 +165,8 @@ class IsotopeWater(Base):
     analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False)
     d = Column(Float)
     o_18 = Column(Float)
-    flag_d = Column('flagd', String)
-    flag_o18 = Column('flago_18', String)
+    flag_d = Column('flagd', CHAR)
+    flag_o18 = Column('flago_18', CHAR)
     h_3 = Column(Float)
     sd_h_3 = Column(Float)
     flag_h3 = Column('flagh_3', String)
@@ -281,19 +281,19 @@ class RawCation(Base):
     
     record_number = Column(Float)
     analyzing_lab = Column(String)
-    flagraw_k = Column(String)
+    flagraw_k = Column(CHAR)
     raw_k = Column(Float)
-    flagraw_ca = Column(String)
+    flagraw_ca = Column(CHAR)
     raw_ca = Column(Float)
-    flagraw_mg = Column(String)
+    flagraw_mg = Column(CHAR)
     raw_mg = Column(Float)
-    flagraw_s = Column(String)
+    flagraw_s = Column(CHAR)
     raw_s = Column(Float)
-    flagraw_mn = Column(String)
+    flagraw_mn = Column(CHAR)
     raw_mn = Column(Float)
-    flagraw_fe = Column(String)
+    flagraw_fe = Column(CHAR)
     raw_fe = Column(Float)
-    flagraw_na = Column(String)
+    flagraw_na = Column(CHAR)
     raw_na = Column(Float)
     
     
@@ -315,7 +315,7 @@ class Sample(Base):
     sample_date = Column(DateTime, nullable=False, primary_key=True)
     taken_by = Column(String)
     sampling_method = Column(Float, ForeignKey(u'sample_method.sample_method_cd'), nullable=False)
-    sample_type = Column(String, ForeignKey(u'sample_type.sample_type_cd'), nullable=False)
+    sample_type = Column(CHAR, ForeignKey(u'sample_type.sample_type_cd'), nullable=False)
     sample_sequence = Column(Float, nullable=False, primary_key=True)
     record_number = Column(Float, nullable=False)
     field_id = Column(String)
@@ -348,7 +348,7 @@ class Site(Base):
     aquifer = Column(String)
     county_code = Column(Float, nullable=False)
     county_name = Column(String, nullable=False)
-    hyd_unit = Column(String, nullable=False)
+    hyd_unit = Column(CHAR, nullable=False)
     distance = Column(Float)
     elevation = Column(Float)
     length = Column(Float)
@@ -376,7 +376,7 @@ class TestSite(Base):
     aquifer = Column(String)
     county_code = Column(Float, nullable=False)
     county_name = Column(String, nullable=False)
-    hyd_unit = Column(String, nullable=False)
+    hyd_unit = Column(CHAR, nullable=False)
     distance = Column(Float)
     elevation = Column(Float)
     length = Column(Float)
@@ -424,10 +424,10 @@ class WwwSites(Base):
     station = Column(String)
     name = Column(String, nullable=False)
     short_name = Column(String, nullable=False)
-    latitude = Column(String, nullable=False)
-    longitude = Column(String, nullable=False)
+    latitude = Column(CHAR, nullable=False)
+    longitude = Column(CHAR, nullable=False)
     elevation = Column(Float)
     depth = Column(Float)
-    state = Column(String, nullable=False)
+    state = Column(CHAR, nullable=False)
     county = Column(String, nullable=False)
     watershed = Column(String, nullable=False)
