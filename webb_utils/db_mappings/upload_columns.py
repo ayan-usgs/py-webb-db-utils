@@ -40,7 +40,7 @@ DV_RESULTS_COLUMNS = (
 
 FIELD_COLUMNS = (
                  'record_number', 'gage_height', 'fldcond', 'fldph', 'wtemp', 
-                 'atemp', 'o2', 'weather', 'sulfide', 'redox,particulates'
+                 'atemp', 'o2', 'weather', 'sulfide', 'redox', 'particulates'
                  )
 
 
@@ -130,10 +130,10 @@ SITE_COLUMNS = (
 
 
 # constants are specified in this control file
-SAMPLE_COLUMNS = (
-                  'station_no', 'depth', 'sample_date', 'taken_by', 'sampling_method', 
-                  'sample_medium', 'sample_type', 'sample_sequence', 'record_number'
-                  )
+SOIL_PROFILE_COLUMNS = (
+                        'station_no', 'depth', 'sample_date', 'taken_by', 'sampling_method', 
+                        'sample_medium', 'sample_type', 'sample_sequence', 'record_number'
+                        )
 
 
 TEST_SITE_COLUMNS = (
