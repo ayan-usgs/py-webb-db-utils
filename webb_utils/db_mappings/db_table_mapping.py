@@ -3,19 +3,90 @@ Created on Sep 9, 2014
 
 @author: ayan
 '''
-from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, Float, Date, CHAR, ForeignKeyConstraint
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Float, Date, CHAR, ForeignKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 
 
+class Sample(Base):
+    
+    __tablename__ = u'SAMPLE_INSERT'
+    
+    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
+    depth = Column(Float, nullable=False, primary_key=True)
+    sample_date = Column(DateTime, nullable=False, primary_key=True)
+    taken_by = Column(String)
+    sampling_method = Column(Float, ForeignKey(u'sample_method.sample_method_cd'), nullable=False)
+    sample_type = Column(CHAR, ForeignKey(u'sample_type.sample_type_cd'), nullable=False)
+    sample_sequence = Column(Float, nullable=False, primary_key=True)
+    record_number = Column(Float, nullable=False)
+    field_id = Column(String)
+    composite_end_date = Column(Date)
+    
+
+class Lab(Base):
+    
+    __tablename__ = u'LAB'
+    
+    analyzing_lab = Column(String, nullable=False, primary_key=True)
+
+
+class Parameters(Base):
+    
+    __tablename__ = u'PARAMETERS'
+    
+    parameter_code = Column(String, nullable=False, primary_key=True)
+    parameter_short_name = Column(String)
+    parameter_code_name = Column(String)
+    parameter_name = Column(String, nullable=False)
+    constituent_name = Column(String)
+    cas_num = Column(String)
+    report_units = Column(String)
+    record_source = Column(String)
+
+
+class Site(Base):
+    
+    __tablename__ = u'SITE'
+    
+    station_no = Column(String, nullable=False, primary_key=True)
+    depth = Column(Float, nullable=False)
+    station_name = Column(String, nullable=False)
+    short_name = Column(String, nullable=False)
+    latitude = Column(String, nullable=False)
+    longitude = Column(String, nullable=False)
+    nest= Column(String, nullable=False)
+    site_type_cd = Column(String, ForeignKey(u'site_type.site_type_cd'), nullable=False)
+    site_group_cd = Column(String, ForeignKey(u'site_group.site_group_cd'), nullable=False)
+    aquifer = Column(String)
+    county_code = Column(Float, nullable=False)
+    county_name = Column(String, nullable=False)
+    hyd_unit = Column(CHAR, nullable=False)
+    distance = Column(Float)
+    elevation = Column(Float)
+    length = Column(Float)
+    nwis_station_no = Column(String)
+    dec_latitude = Column(Numeric)
+    dec_longitude = Column(Numeric)
+    
+    
+class RPDesc(Base):
+    
+    __tablename__ = u'RP_DESC'
+    
+    station_no = Column(String, nullable=False, primary_key=True)
+    rp_id = Column(String, nullable=False, primary_key=True)
+    rp_desc = Column(String)
+    
+
 class Anion(Base):
     
-    __tablename__ = u'ANION'
+    __tablename__ = u'ANION_INSERT'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), primary_key=True, nullable=False)
-    analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), primary_key=True, nullable=False)
+    record_number = Column(Integer, ForeignKey(Sample.record_number), primary_key=True, nullable=False)
+    analyzing_lab = Column(String, ForeignKey(Lab.analyzing_lab), primary_key=True, nullable=False)
     cl = Column(Float)
     no3 = Column(Float)
     so4 = Column(Float)
@@ -24,14 +95,18 @@ class Anion(Base):
     flagso4 = Column(CHAR)
     alkalinity_source = Column(String)
     alkalinity = Column(Float)
+    cl_unit = Column(String)
+    no3_unit = Column(String)
+    so4_unit = Column(String)
+    alk_unit = Column(String)
 
 
 class Cation(Base):
     
     __tablename__ = u'CATION'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), primary_key=True, nullable=False)
-    analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), primary_key=True, nullable=False)
+    record_number = Column(Integer, ForeignKey(Sample.record_number), primary_key=True, nullable=False)
+    analyzing_lab = Column(String, ForeignKey(Lab.analyzing_lab), primary_key=True, nullable=False)
     na = Column(Float)
     mg = Column(Float)
     si = Column(Float)
@@ -48,14 +123,22 @@ class Cation(Base):
     flagmn = Column(CHAR)
     flagfe = Column(CHAR)
     flagsr = Column(CHAR)
+    ca_unit = Column(String)
+    mg_unit = Column(String)
+    na_unit = Column(String)
+    k_unit = Column(String)
+    fe_unit = Column(String)
+    mn_unit = Column(String)
+    si_unit = Column(String)
+    sr_unit = Column(String)
     
     
 class Carbon(Base):
     
     __tablename__ = u'CARBON'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), nullable=False, primary_key=True)
-    analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False, primary_key=True)
+    record_number = Column(Integer, ForeignKey(Sample.record_number), nullable=False, primary_key=True)
+    analyzing_lab = Column(String, ForeignKey(Lab.analyzing_lab), nullable=False, primary_key=True)
     tic = Column(Float)
     toc = Column(Float)
     uva_254 = Column(Float)
@@ -70,8 +153,8 @@ class CarbonGas(Base):
     
     __tablename__ = u'CARBON_GAS'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), nullable=False, primary_key=True)
-    analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False, primary_key=True)
+    record_number = Column(Integer, ForeignKey(Sample.record_number), nullable=False, primary_key=True)
+    analyzing_lab = Column(String, ForeignKey(Lab.analyzing_lab), nullable=False, primary_key=True)
     ch4 = Column(Float)
     co2 = Column(Float)
     flagch4 = Column(CHAR)
@@ -82,8 +165,8 @@ class DVResults(Base):
     
     __tablename__ = u'DV_RESULTS'
     
-    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
-    parameter_code = Column(String, ForeignKey(u'parameters.parameter_code'), nullable=False, primary_key=True)
+    station_no = Column(String, ForeignKey(Site.station_name), nullable=False, primary_key=True)
+    parameter_code = Column(String, ForeignKey(Parameters.parameter_code), nullable=False, primary_key=True)
     result_date = Column(Date, nullable=False, primary_key=True)
     result_value = Column(Float)
     dv_flag = Column(CHAR, ForeignKey(u'dv_flag.flag'))
@@ -93,7 +176,7 @@ class Field(Base):
     
     __tablename__ = u'FIELD'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), nullable=False, primary_key=True)
+    record_number = Column(Integer, ForeignKey(Sample.record_number), nullable=False, primary_key=True)
     gage_height = Column(Float)
     fldcond = Column(Float)
     fldph = Column(Float)
@@ -104,13 +187,14 @@ class Field(Base):
     sulfide = Column(Float)
     redox = Column(Float)
     particulates = Column(Float)
+    fldcond_unit = Column(String)
     
     
 class FluxChamber(Base):
     
     __tablename__ = u'FLUX_CHAMBER'
     
-    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
+    station_no = Column(String, ForeignKey(Site.station_no), nullable=False, primary_key=True)
     meas_date = Column(Date, nullable=False, primary_key=True)
     meas_minute = Column(Float, nullable=False)
     co2_light = Column(Float)
@@ -122,8 +206,8 @@ class GageHtMeas(Base):
     
     __tablename__ = u'GAGE_HT_MEAS'
     
-    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
-    meas_date = Column(Date, nullable=False, primary_key=True)
+    station_no = Column(String, ForeignKey(Site.station_no), nullable=False, primary_key=True)
+    meas_date = Column(DateTime, nullable=False, primary_key=True)
     ht_above_rp = Column(Float)
     local_ws_elev = Column(Float)
     ngvd_ws_elev = Column(Float)
@@ -134,10 +218,10 @@ class GageHtRp(Base):
     
     __tablename__ = u'GAGE_HT_RP'
     __table_args__ = (
-                      ForeignKeyConstraint(['station_no', 'rp_id'], ['rp_desc.station_no', 'rp_desc.rp_id']),
+                      ForeignKeyConstraint(['station_no', 'rp_id'], [RPDesc.station_no, RPDesc.rp_id]),
                       )
     
-    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
+    station_no = Column(String, ForeignKey(Site.station_name), nullable=False, primary_key=True)
     rp_id = Column(String, nullable=False, primary_key=True)
     rp_date = Column(Date, nullable=False)
     rp_valid = Column(String, nullable=False)
@@ -149,8 +233,8 @@ class IsotopeStrontium(Base):
     
     __tablename__ = u'ISOTOPE_STRONTIUM'
     
-    record_number = Column(Float, ForeignKey(u'sample.record_number'), nullable=False, primary_key=True)
-    analyzing_lab = Column(String, ForeignKey(u'lab.analyzing_lab'), nullable=False)
+    record_number = Column(Float, ForeignKey(Sample.record_number), nullable=False, primary_key=True)
+    analyzing_lab = Column(String, ForeignKey(Lab.analyzing_lab), nullable=False)
     sr87_sr86 = Column('SR_87#SR_86', Float)
     sr87 = Column('sr_87', Float)
     flag_sr87_sr86 = Column('FLAGSR_87#SR_86', CHAR) # must be aliased in retrievals as SQLAlchemy default name is too long
@@ -215,20 +299,6 @@ class Nutrient(Base):
     flagp = Column(String)
     
     
-class Parameters(Base):
-    
-    __tablename__ = u'PARAMETERS'
-    
-    parameter_code = Column(String, nullable=False, primary_key=True)
-    parameter_short_name = Column(String)
-    parameter_code_name = Column(String)
-    parameter_name = Column(String, nullable=False)
-    constituent_name = Column(String)
-    cas_num = Column(String)
-    report_units = Column(String)
-    record_source = Column(String)
-    
-    
 class QMeas(Base):
     
     __tablename__ = u'QMEAS'
@@ -279,7 +349,7 @@ class RawCation(Base):
     
     __tablename__ = u'RAW_CATION'
     
-    record_number = Column(Float)
+    record_number = Column(Float, primary_key=True)
     analyzing_lab = Column(String)
     flagraw_k = Column(CHAR)
     raw_k = Column(Float)
@@ -297,31 +367,6 @@ class RawCation(Base):
     raw_na = Column(Float)
     
     
-class RPDesc(Base):
-    
-    __tablename__ = u'RP_DESC'
-    
-    station_no = Column(String, nullable=False, primary_key=True)
-    rp_id = Column(String, nullable=False, primary_key=True)
-    rp_desc = Column(String)
-    
-    
-class Sample(Base):
-    
-    __tablename__ = u'SAMPLE'
-    
-    station_no = Column(String, ForeignKey(u'site.station_no'), nullable=False, primary_key=True)
-    depth = Column(Float, nullable=False, primary_key=True)
-    sample_date = Column(DateTime, nullable=False, primary_key=True)
-    taken_by = Column(String)
-    sampling_method = Column(Float, ForeignKey(u'sample_method.sample_method_cd'), nullable=False)
-    sample_type = Column(CHAR, ForeignKey(u'sample_type.sample_type_cd'), nullable=False)
-    sample_sequence = Column(Float, nullable=False, primary_key=True)
-    record_number = Column(Float, nullable=False)
-    field_id = Column(String)
-    composite_end_date = Column(Date)
-    
-    
 class SampleGroup(Base):
     
     __tablename__ = u'SAMPLE_GROUP'
@@ -332,36 +377,11 @@ class SampleGroup(Base):
     record_number = Column(Float, nullable=False, primary_key=True)
     
     
-class Site(Base):
-    
-    __tablename__ = u'SITE'
-    
-    station_no = Column(String, nullable=False, primary_key=True)
-    depth = Column(Float, nullable=False)
-    station_name = Column(String, nullable=False)
-    short_name = Column(String, nullable=False)
-    latitude = Column(String, nullable=False)
-    longitude = Column(String, nullable=False)
-    nest= Column(String, nullable=False)
-    site_type_cd = Column(String, ForeignKey(u'site_type.site_type_cd'), nullable=False)
-    site_group_cd = Column(String, ForeignKey(u'site_group.site_group_cd'), nullable=False)
-    aquifer = Column(String)
-    county_code = Column(Float, nullable=False)
-    county_name = Column(String, nullable=False)
-    hyd_unit = Column(CHAR, nullable=False)
-    distance = Column(Float)
-    elevation = Column(Float)
-    length = Column(Float)
-    nwis_station_no = Column(String)
-    dec_latitude = Column(Numeric)
-    dec_longitude = Column(Numeric)
-    
-    
 class TestSite(Base):
     
     __tablename__ = u'TEST_SITE'
     
-    station_no = Column(String, nullable=False)
+    station_no = Column(String, nullable=False, primary_key=True)
     nwis_station_no = Column(String)
     depth = Column(Float, nullable=False)
     station_name = Column(String, nullable=False)
@@ -421,7 +441,7 @@ class WwwSites(Base):
     
     __tablename__ = u'WWW_SITES'
     
-    station = Column(String)
+    station = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     short_name = Column(String, nullable=False)
     latitude = Column(CHAR, nullable=False)
