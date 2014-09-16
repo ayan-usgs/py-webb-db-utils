@@ -239,7 +239,7 @@ class IsotopeStrontium(Base):
     sr87 = Column('sr_87', Float)
     flag_sr87_sr86 = Column('FLAGSR_87#SR_86', CHAR) # must be aliased in retrievals as SQLAlchemy default name is too long
     flag_sr87 = Column('flagsr_87', CHAR)
-
+    sr87_sr86_unit = Column('SR_87#SR86_UNIT', String)
 
 class IsotopeWater(Base):
     
@@ -255,6 +255,8 @@ class IsotopeWater(Base):
     sd_h_3 = Column(Float)
     flag_h3 = Column('flagh_3', String)
     lab_id = Column(String)
+    d_unit = Column(String)
+    o18_unit = Column(String)
     
     
 class Mercury(Base):
@@ -297,7 +299,12 @@ class Nutrient(Base):
     flagn = Column(String)
     flagpo4 = Column(String)
     flagp = Column(String)
-    
+    sio2_unit = Column(String)
+    no3_unit = Column(String)
+    n_unit = Column(String)
+    p_unit = Column(String)
+    po4_unit = Column(String)
+    nh4_unit = Column(String)
     
 class QMeas(Base):
     

@@ -8,10 +8,10 @@ import pandas as pd
 from pandas.io.parsers import read_csv
 from db_utils import AlchemDB
 from db_mappings.db_table_mapping import (Anion, Cation, Carbon, CarbonGas, DVResults, Field, FluxChamber, GageHtMeas,
-                                          GageHtRp, IsotopeStrontium)
+                                          GageHtRp, IsotopeStrontium, IsotopeWater, Mercury, Nutrient)
 from db_mappings.upload_columns import (ANION_COLUMNS, BULLEN_CATION_COLUMNS, CARBON_COLUMNS, CARBON_GAS_COLUMNS, CATION_COLUMNS,
                                         DV_RESULTS_COLUMNS, FIELD_COLUMNS, FLUX_CHAMBER_COLUMNS, GAGE_HT_MEAS_COLUMNS, GAGE_HT_RP_COLUMNS,
-                                        ISOTOPE_STRONTIUM_COLUMNS)
+                                        ISOTOPE_STRONTIUM_COLUMNS, ISOTOPE_WATER_COLUMNS, MERCURY_COLUMNS, NUTRIENT_COLUMNS)
 
 
 def string_to_datetime(series, date_col, time_col):
@@ -40,6 +40,9 @@ class UploadData(object):
     ug_per_liter = 'ug/L'
     meq_per_liter = 'meq/L'
     microsiemens_per_cm = 'uS/cm'
+    no_unit = 'No Unit'
+    o18_unit = 'delta O18/O16'
+    d_unit = 'delta D/H'
     
     def __init__(self, schema, password, db_name):
         self.acdb = AlchemDB(schema, password, db_name)
@@ -497,4 +500,185 @@ class UploadData(object):
             analyzing_lab = row['analyzing_lab']
             sr87_sr86 = row['Sr_87#Sr_86']
             sr87 = row['Sr_87']
-            
+            flag_sr87_sr86 = row['flagSr_87#Sr_86']
+            flag_sr87 = row['flagSr_87']
+            if sr87_sr86:
+                sr87_sr86_unit = self.no_unit
+            else:
+                sr87_sr86_unit = None
+            iso_sr_row = IsotopeStrontium(
+                                          record_number=record_number,
+                                          analyzing_lab=analyzing_lab,
+                                          sr87_sr86=sr87_sr86,
+                                          sr87=sr87,
+                                          flag_sr87_sr86,
+                                          flag_sr87=flag_sr87,
+                                          sr87_sr86_unit=sr87_sr86_unit
+                                          )
+            row_list.append(iso_sr_row)
+        self.session.add_all(row_list)
+        self.session.commit()
+        message = 'Loaded {0} strontium isotope records'.format(len(row_list))
+        return message
+    
+    def load_water_isotope_data(self, csv_pathname):
+        columns = ISOTOPE_WATER_COLUMNS
+        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df_records = self._dataframe_to_records(df)
+        row_list = []
+        for row in df_records:
+            record_number = row['record_number']
+            analyzing_lab = row['analyzing_lab']
+            d = row['d']
+            o_18 = row['O_18']
+            flag_d = row['flagD']
+            flag_o18 = row['flagO_18']
+            h_3 = row['H_3']
+            sd_h_3 = row['SD_H_3']
+            flag_h3 = row['flagH_3']
+            lab_id = row['lab_id']
+            if d:
+                d_unit = self.d_unit
+            else:
+                d_unit = None
+            if o_18:
+                o18_unit = self.o18_unit
+            else:
+                o18_unit = None
+            iso_water_row = IsotopeWater(
+                                         record_number=record_number,
+                                         analyzing_lab=analyzing_lab,
+                                         d=d,
+                                         o_18=o_18,
+                                         flag_d=flag_d,
+                                         flag_o18=flag_o18,
+                                         h_3=h_3,
+                                         sd_h_3=sd_h_3,
+                                         flag_h3=flag_h3,
+                                         lab_id=lab_id,
+                                         d_unit=d_unit,
+                                         o18_unit=o18_unit
+                                         )
+            row_list.append(iso_water_row)
+        self.session.add_all(row_list)
+        self.session.commit()
+        message = 'Loaded {0} water isotope records'.format(len(row_list))
+        return message
+    
+    def load_mercury_data(self, csv_pathname):
+        columns = MERCURY_COLUMNS
+        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df_records = self._dataframe_to_records(df)
+        row_list = []
+        for row in df_records:
+            record_number = row['record_number']
+            analyzing_lab = row['analyzing_lab']
+            analysis_date = row['analysis_date']
+            results_id = row['results_id']
+            bottle_id = row['bottle_id']
+            parameter = row['parameter']
+            ddl = row['ddl']
+            d_flag = row['d_flag']
+            value = row['value']
+            units = row['units']
+            qa_flags = row['qa_flags']
+            field_id = row['field_id']
+            lab_comment = row['lab_comment']
+            mercury_row = Mercury(
+                                  record_number=record_number,
+                                  analyzing_lab=analyzing_lab,
+                                  analysis_date=analysis_date,
+                                  results_id=results_id,
+                                  bottle_id=bottle_id,
+                                  parameter=parameter,
+                                  ddl=ddl,
+                                  d_flag=d_flag,
+                                  value=value,
+                                  units=units,
+                                  qa_flags=qa_flags,
+                                  field_id=field_id,
+                                  lab_comment=lab_comment
+                                  )
+            row_list.append(mercury_row)
+        self.session.add_all(row_list)
+        self.session.commit()
+        message = 'Loaded {0} mercury records'.format(len(row_list))
+        return message
+    
+    def load_nutrient_data(self, csv_pathname):
+        columns = NUTRIENT_COLUMNS
+        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df_records = self._dataframe_to_records(df)
+        row_list = []
+        for row in df_records:
+            record_number = row['record_number']
+            filter_type = row['filter_type']
+            analyzing_lab = row['analyzing_lab']
+            sio2 = row['SiO2']
+            if sio2:
+                sio2_unit = self.mg_per_liter
+            else:
+                sio2_unit = None
+            no3 = row['NO3']
+            if no3:
+                no3_unit = self.ug_per_liter
+            else:
+                no3_unit = None
+            nh4 = row['NH4']
+            if nh4:
+                nh4_unit = self.ug_per_liter
+            else:
+                nh4_unit = None
+            nh4orgn = row['NH4orgN']
+            n = row['N']
+            if n:
+                n_unit = self.ug_per_liter
+            else:
+                n_unit = None
+            po4 = row['PO4']
+            if po4:
+                po4_unit = self.mg_per_liter
+            else:
+                po4_unit = None
+            p = row['P']
+            if p:
+                p_unit = self.ug_per_liter
+            else:
+                p_unit = None
+            flagsio2 = row['flagSiO2']
+            flagno3 = row['flagNO3']
+            flagnh4 = row['flagNH4']
+            flagnh4orgn = row['flagNH4orgN']
+            flagn = row['flagN']
+            flagpo4 = row['flagPO4']
+            flagp = row['flagP']
+            nutrient_row = Nutrient(
+                                    record_number=record_number,
+                                    filter_type=filter_type,
+                                    analyzing_lab=analyzing_lab,
+                                    sio2 = sio2,
+                                    no3=no3,
+                                    nh4=nh4,
+                                    nh4orgn=nh4orgn,
+                                    n=n,
+                                    po4=po4,
+                                    p=p,
+                                    flagsio2=flagsio2,
+                                    flagno3=flagno3,
+                                    flagnh4=flagnh4,
+                                    flagnh4orgn=flagnh4orgn,
+                                    flagn=flagn,
+                                    flagpo4=flagpo4,
+                                    flagp=flagp,
+                                    sio2_unit=sio2_unit,
+                                    no3_unit=no3_unit,
+                                    n_unit=n_unit,
+                                    p_unit=p_unit,
+                                    po4_unit=po4_unit,
+                                    nh4_unit=nh4_unit
+                                    )     
+            row_list.append(nutrient_row)
+        self.session.add_all(row_list)
+        self.session.commit()
+        message = 'Loaded {0} nutrient records'.format(len(row_list))
+        return message
