@@ -3,13 +3,11 @@ Created on Sep 9, 2014
 
 @author: ayan
 '''
-"""
+
 ANION_COLUMNS = (
                  'record_number', 'analyzing_lab', 'Cl', 'NO3', 'SO4', 
                  'flagCl', 'flagNO3', 'flagSO4', 'alkalinity_source', 'alkalinity'
                  )
-"""
-ANION_COLUMNS = ('record_number', 'analyzing_lab', 'Cl', 'NO3', 'SO4', 'flagCl', 'flagNO3', 'flagSO4', 'alkalinity_source', 'alkalinity')
 
 
 BULLEN_CATION_COLUMNS = (
@@ -51,8 +49,9 @@ FLUX_CHAMBER_COLUMNS = (
                         )
 
 
+# meas_time added to support a separate time column from a lab export
 GAGE_HT_MEAS_COLUMNS = (
-                        'station_no', 'meas_date', 'ht_above_rp', 'local_ws_elev', 'ngvd_ws_elev', 'data_source'
+                        'station_no', 'meas_date', 'meas_time', 'ht_above_rp', 'local_ws_elev', 'ngvd_ws_elev', 'data_source',
                         )
 
 
@@ -114,7 +113,7 @@ RP_DESC_COLUMNS = (
 
 
 SAMPLE_COLUMNS = (
-                  'station_no','depth','sample_date','taken_by','sampling_method','sample_medium',
+                  'station_no','depth','sample_date', 'sample_time','taken_by','sampling_method','sample_medium',
                   'sample_type','sample_sequence','record_number','field_id','composite_end_date'
                   )
 
@@ -133,7 +132,7 @@ SITE_COLUMNS = (
 
 # constants are specified in this control file
 SOIL_PROFILE_COLUMNS = (
-                        'station_no', 'depth', 'sample_date', 'taken_by', 'sampling_method', 
+                        'station_no', 'depth', 'sample_date', 'sample_time', 'taken_by', 'sampling_method', 
                         'sample_medium', 'sample_type', 'sample_sequence', 'record_number'
                         )
 

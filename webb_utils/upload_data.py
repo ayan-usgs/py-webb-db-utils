@@ -71,7 +71,7 @@ class UploadData(object):
         self.engine = self.acdb.engine
         self.session = self.acdb.create_session()
 
-    def _dataframe_from_csv(self, csv_pathname, columns, sep=',', engine='python', 
+    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='python', 
                             header=None, parse_dates=False, date_parser=None, date_col=None, time_col=None):
         raw_df = read_csv(filepath_or_buffer=csv_pathname, sep=sep, index_col=None, engine=engine, header=header, 
                           names=columns, parse_dates=parse_dates, date_parser=date_parser)
@@ -447,7 +447,7 @@ class UploadData(object):
         row_list = []
         for row in df_records:
             station_no = row['station_no']
-            meas_date = row['meas_date']
+            meas_date = str_to_date(row['meas_date'])
             meas_minute = row['meas_minute']
             co2_light = row['co2_light']
             co2_dark = row['co2_dark']
@@ -466,14 +466,14 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'flux chamber')
         return message
     
-    def load_gage_ht_meas_data(self, csv_pathname):
+    def load_gage_ht_meas_data(self, csv_pathname, date_col, time_col):
         columns = GAGE_HT_MEAS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
-            meas_date = row['meas_date']
+            meas_date = row['datetime']
             ht_above_rp = row['ht_above_rp']
             local_ws_elev = row['local_ws_elev']
             ngvd_ws_elev = row['ngvd_ws_elev']
@@ -500,7 +500,7 @@ class UploadData(object):
         for row in df_records:
             station_no = row['station_no']
             rp_id = row['rp_id']
-            rp_date = row['rp_date']
+            rp_date = str_to_date(row['rp_date'])
             rp_valid = row['rp_valid']
             local_rp_elev = row['local_rp_elev']
             ngvd_rp_elev = row['ngvd_rp_elev']
@@ -513,7 +513,7 @@ class UploadData(object):
                                ngvd_rp_elev=ngvd_rp_elev,
                                )
             row_list.append(ghr_row)
-        self.session.add_all(ghr_row)
+        self.session.add_all(row_list)
         self.session.commit()
         message = self.return_message.format(len(row_list), 'gage height RP')
         return message
@@ -557,7 +557,7 @@ class UploadData(object):
         for row in df_records:
             record_number = row['record_number']
             analyzing_lab = row['analyzing_lab']
-            d = row['d']
+            d = row['D']
             o_18 = row['O_18']
             flag_d = row['flagD']
             flag_o18 = row['flagO_18']
@@ -601,7 +601,7 @@ class UploadData(object):
         for row in df_records:
             record_number = row['record_number']
             analyzing_lab = row['analyzing_lab']
-            analysis_date = row['analysis_date']
+            analysis_date = str_to_date(row['analysis_date'])
             results_id = row['results_id']
             bottle_id = row['bottle_id']
             parameter = row['parameter']
@@ -717,7 +717,7 @@ class UploadData(object):
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
-            parameter_code = row['parameter']
+            parameter_code = pad_string(row['parameter_code'])
             parameter_short_name = row['parameter_short_name']
             parameter_code_name = row['parameter_code_name']
             parameter_name = row['parameter_name']
@@ -748,7 +748,7 @@ class UploadData(object):
         row_list = []
         for row in df_records:
             meas_no = row['meas_no']
-            meas_dt = row['meas_dt']
+            meas_dt = str_to_date(row['meas_dt'])
             made_by = row['made_by']
             width = row['width']
             area = row['area']
@@ -760,7 +760,7 @@ class UploadData(object):
             nu_sect = row['nu_sect']
             ght_change = row['ght_change']
             meas_time = row['meas_time']
-            meas_rated = row['meas_reated']
+            meas_rated = row['meas_rated']
             control_cond = row['control_cond']
             station_no = row['station_no']
             qmeas_row = QMeas(
@@ -878,7 +878,7 @@ class UploadData(object):
                                        raw_na=raw_na
                                        )
             row_list.append(raw_cation_row)
-        self.session.append(row_list)
+        self.session.add_all(row_list)
         self.session.commit()
         message = self.return_message.format(len(row_list), 'raw cation')
         return message
@@ -903,15 +903,15 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'RP description')
         return message
     
-    def load_sample_data(self, csv_pathname):
+    def load_sample_data(self, csv_pathname, date_col, time_col):
         columns = SAMPLE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
             depth = row['depth']
-            sample_date = row['sample_date']
+            sample_date = row['datetime']
             taken_by = row['taken_by']
             sampling_method = row['sampling_method']
             sample_medium = row['sample_medium']
@@ -1013,15 +1013,16 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'site')
         return message
     
-    def load_soil_profile_data(self, csv_pathname):
+    def load_soil_profile_data(self, csv_pathname, date_col, time_col):
         columns = SOIL_PROFILE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
+        print(df_records)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
             depth = row['depth']
-            sample_date = row['sample_date']
+            sample_date = row['datetime']
             taken_by = row['taken_by']
             if taken_by:
                 taken_by_val = taken_by
