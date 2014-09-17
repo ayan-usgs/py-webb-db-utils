@@ -19,7 +19,7 @@ class SampleMethod(Base):
 
 class SampleMedium(Base):
     
-    __table__ = u'SAMPLE_MEDIUM'
+    __tablename__ = u'SAMPLE_MEDIUM'
     
     sample_medium_cd = Column(String, primary_key=True, nullable=False)
     
@@ -167,6 +167,7 @@ class Cation(Base):
     mn_unit = Column(String)
     si_unit = Column(String)
     sr_unit = Column(String)
+    s_unit = Column(String)
     
     
 class Carbon(Base):
@@ -196,16 +197,23 @@ class CarbonGas(Base):
     flagch4 = Column(CHAR)
     flagco2 = Column(CHAR)
     
+    
+class DVFlag(Base):
+    
+    __tablename__ = u'DV_FLAG'
+    
+    flag = Column(CHAR, primary_key=True, nullable=False)
+    
 
 class DVResults(Base):
     
     __tablename__ = u'DV_RESULTS'
     
-    station_no = Column(String, ForeignKey(Site.station_name), nullable=False, primary_key=True)
+    station_no = Column(String, ForeignKey(Site.station_no), nullable=False, primary_key=True)
     parameter_code = Column(String, ForeignKey(Parameters.parameter_code), nullable=False, primary_key=True)
     result_date = Column(Date, nullable=False, primary_key=True)
     result_value = Column(Float)
-    dv_flag = Column(CHAR, ForeignKey(u'dv_flag.flag'))
+    dv_flag = Column(CHAR, ForeignKey(DVFlag.flag), nullable=True)
     
     
 class Field(Base):

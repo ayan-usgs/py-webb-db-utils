@@ -30,6 +30,22 @@ def string_to_datetime(series, date_col, time_col):
     return datetime_obj
 
 
+def str_to_date(date_str, time_format='%m/%d/%y'):
+    datetime_obj = datetime.strptime(date_str, time_format)
+    return datetime_obj.date()
+
+
+def pad_string(string, total_length=5, padding_element='0'):
+    force_string = str(string)
+    length_to_pad = 5 - len(force_string)
+    if length_to_pad > 0:
+        padding_str = padding_element * length_to_pad
+        final_str = '{0}{1}'.format(padding_str, force_string)
+    else:
+        final_str = force_string
+    return final_str
+
+
 def clean_string_elements(element):
     try:
         int_str = element.decode('utf-8-sig')
@@ -55,7 +71,7 @@ class UploadData(object):
         self.engine = self.acdb.engine
         self.session = self.acdb.create_session()
 
-    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='python', 
+    def _dataframe_from_csv(self, csv_pathname, columns, sep=',', engine='python', 
                             header=None, parse_dates=False, date_parser=None, date_col=None, time_col=None):
         raw_df = read_csv(filepath_or_buffer=csv_pathname, sep=sep, index_col=None, engine=engine, header=header, 
                           names=columns, parse_dates=parse_dates, date_parser=date_parser)
@@ -81,9 +97,10 @@ class UploadData(object):
         columns = ANION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
+        print(df_records)
         row_list = []
         for df_record in df_records:
-            record_number = int(df_record['record_number'])
+            record_number = df_record['record_number']
             analyzing_lab = df_record['analyzing_lab']
             cl = df_record['Cl']
             no3 = df_record['NO3']
@@ -213,7 +230,8 @@ class UploadData(object):
                                 fe_unit=fe_unit,
                                 mn_unit=mn_unit,
                                 si_unit=si_unit,
-                                sr_unit=sr_unit
+                                sr_unit=sr_unit,
+                                s_unit=None
                                 )
             row_list.append(cation_row)
         self.session.add_all(row_list)
@@ -360,16 +378,20 @@ class UploadData(object):
         row_list = []
         for row in df_records:
             station_no = row['station_no']
-            parameter_code = row['parameter_code']
-            result_date = row['result_date']
+            parameter_code = pad_string(row['parameter_code'])
+            result_date = str_to_date(row['result_date'])
             result_value = row['result_value']
             dv_flag = row['dv_flag']
+            if dv_flag:
+                dv_flag_val = dv_flag
+            else:
+                dv_flag_val = ' '
             dv_results_row = DVResults(
                                        station_no=station_no,
                                        parameter_code=parameter_code,
                                        result_date=result_date,
                                        result_value=result_value,
-                                       dv_flag=dv_flag
+                                       dv_flag=dv_flag_val
                                        )
             row_list.append(dv_results_row)
         self.session.add_all(row_list)
@@ -517,7 +539,7 @@ class UploadData(object):
                                           analyzing_lab=analyzing_lab,
                                           sr87_sr86=sr87_sr86,
                                           sr87=sr87,
-                                          flag_sr87_sr86,
+                                          flag_sr87_sr86=flag_sr87_sr86,
                                           flag_sr87=flag_sr87,
                                           sr87_sr86_unit=sr87_sr86_unit
                                           )
@@ -1074,7 +1096,7 @@ class UploadData(object):
                                      depth=depth,
                                      station_name=station_name,
                                      short_name=short_name,
-                                     nest_name,
+                                     nest_name=nest_name,
                                      latitude=latitude,
                                      longitude=longitude,
                                      x_wtm=x_wtm,
