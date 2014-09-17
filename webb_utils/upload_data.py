@@ -466,7 +466,7 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'flux chamber')
         return message
     
-    def load_gage_ht_meas_data(self, csv_pathname, date_col, time_col):
+    def load_gage_ht_meas_data(self, csv_pathname, date_col=1, time_col=2):
         columns = GAGE_HT_MEAS_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
@@ -903,7 +903,7 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'RP description')
         return message
     
-    def load_sample_data(self, csv_pathname, date_col, time_col):
+    def load_sample_data(self, csv_pathname, date_col=2, time_col=3):
         columns = SAMPLE_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
@@ -1013,7 +1013,7 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'site')
         return message
     
-    def load_soil_profile_data(self, csv_pathname, date_col, time_col):
+    def load_soil_profile_data(self, csv_pathname, date_col=2, time_col=3):
         columns = SOIL_PROFILE_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
@@ -1118,15 +1118,15 @@ class UploadData(object):
         message = self.return_message.format(len(row_list), 'test site')
         return message
     
-    def load_uv_results_data(self, csv_pathname):
+    def load_uv_results_data(self, csv_pathname, date_col=2, time_col=3):
         columns = UV_RESULTS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
-            parameter_code = row['parameter_code']
-            result_datetime = row['result_datetime']
+            parameter_code = pad_string(row['parameter_code'])
+            result_datetime = row['datetime']
             edited_value = row['edited_value']
             computed_value = row['computed_value']
             uv_result_row = UVResults(

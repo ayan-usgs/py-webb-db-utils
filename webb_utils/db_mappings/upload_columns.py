@@ -145,7 +145,7 @@ TEST_SITE_COLUMNS = (
 
 
 UV_RESULTS_COLUMNS = (
-                      'station_no', 'parameter_code', 'result_datetime', 'edited_value', 'computed_value'
+                      'station_no', 'parameter_code', 'result_date', 'result_time', 'edited_value', 'computed_value'
                       )
 
 
