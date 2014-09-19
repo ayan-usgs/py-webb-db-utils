@@ -467,8 +467,11 @@ class UVResults(Base):
 class WellHeadMeas(Base):
     
     __tablename__ = u'WELL_HEAD_MEAS'
+    __table_args__ = (
+                      ForeignKeyConstraint(['station_no', 'depth'], [Site.station_no, Site.depth]),
+                      )
     
-    station_no = Column(String, ForeignKey(Site.station_no), nullable=False, primary_key=True)
+    station_no = Column(String, nullable=False, primary_key=True)
     depth = Column(Float, nullable=False, primary_key=True)
     meas_date = Column(Date, nullable=False, primary_key=True)
     depth_to_ws = Column(Float)

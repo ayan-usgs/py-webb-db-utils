@@ -4,6 +4,7 @@ Created on Sep 9, 2014
 @author: ayan
 '''
 from datetime import datetime
+import numpy as np
 import pandas as pd
 from pandas.io.parsers import read_csv
 from db_utils import AlchemDB
@@ -19,12 +20,12 @@ from db_mappings.upload_columns import (ANION_COLUMNS, BULLEN_CATION_COLUMNS, CA
                                         WELL_HEAD_MEAS_COLUMNS, WELL_HEAD_MP_COLUMNS, WSLH_ANION_COLUMNS, WSLH_CATION_COLUMNS, WWW_SITES_COLUMNS)
 
 
-def string_to_datetime(series, date_col, time_col):
+def string_to_datetime(series, date_col, time_col, datetime_format='%m/%d/%y %H:%M:%S'):
     date_str = series[date_col]
     time_str = series[time_col]
     datetime_str = '{date} {time}'.format(date=date_str, time=time_str)
     try:
-        datetime_obj = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
+        datetime_obj = datetime.strptime(datetime_str, datetime_format)
     except ValueError:
         datetime_obj = datetime_str
     return datetime_obj
@@ -66,15 +67,16 @@ class UploadData(object):
     d_unit = 'delta D/H'
     return_message = 'Loaded {0} {1} records'
     
-    def __init__(self, schema, password, db_name):
+    def __init__(self, schema, password, db_name, commit=True):
         self.acdb = AlchemDB(schema, password, db_name)
         self.engine = self.acdb.engine
         self.session = self.acdb.create_session()
+        self.commit = commit
 
-    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='python', 
+    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='c', dtype=None,
                             header=None, parse_dates=False, date_parser=None, date_col=None, time_col=None):
         raw_df = read_csv(filepath_or_buffer=csv_pathname, sep=sep, index_col=None, engine=engine, header=header, 
-                          names=columns, parse_dates=parse_dates, date_parser=date_parser)
+                          names=columns, parse_dates=parse_dates, date_parser=date_parser, dtype=dtype)
         if date_col and time_col:
             raw_df['datetime'] = raw_df.apply(string_to_datetime, axis=1, date_col=date_col, time_col=time_col)
             raw_df_str_clean = raw_df.applymap(clean_string_elements)
@@ -144,7 +146,8 @@ class UploadData(object):
                               )
             row_list.append(anion_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'anion')
         return message
     
@@ -235,7 +238,8 @@ class UploadData(object):
                                 )
             row_list.append(cation_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'bullen cation')
         return message
     
@@ -269,7 +273,8 @@ class UploadData(object):
                                 )
             row_list.append(carbon_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'carbon')
         return message
     
@@ -295,7 +300,8 @@ class UploadData(object):
                                        )
             row_list.append(carbon_gas_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'carbon gas')
         return message
     
@@ -367,13 +373,18 @@ class UploadData(object):
                                 )
             row_list.append(cation_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'cation')
         return message
     
     def load_dv_results_data(self, csv_pathname):
         columns = DV_RESULTS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object, 'parameter_code': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -436,13 +447,18 @@ class UploadData(object):
                               )
             row_list.append(field_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'field result')
         return message
     
     def load_flux_chamber_data(self, csv_pathname):
         columns = FLUX_CHAMBER_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -462,13 +478,20 @@ class UploadData(object):
                                  )
             row_list.append(fc_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'flux chamber')
         return message
     
     def load_gage_ht_meas_data(self, csv_pathname, date_col=1, time_col=2):
         columns = GAGE_HT_MEAS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      date_col=date_col, 
+                                      time_col=time_col,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -488,13 +511,18 @@ class UploadData(object):
                                  )
             row_list.append(ghm_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'gage_height_measurement')
         return message
     
     def load_gage_ht_rp_data(self, csv_pathname):
         columns = GAGE_HT_RP_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -514,7 +542,8 @@ class UploadData(object):
                                )
             row_list.append(ghr_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'gage height RP')
         return message
     
@@ -545,7 +574,8 @@ class UploadData(object):
                                           )
             row_list.append(iso_sr_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'strontium isotope')
         return message
     
@@ -589,7 +619,8 @@ class UploadData(object):
                                          )
             row_list.append(iso_water_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'water isotope')
         return message
     
@@ -629,7 +660,8 @@ class UploadData(object):
                                   )
             row_list.append(mercury_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'mercury')
         return message
     
@@ -707,13 +739,18 @@ class UploadData(object):
                                     )     
             row_list.append(nutrient_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'nutrient')
         return message
     
     def load_parameters(self, csv_pathname):
         columns = PARAMETERS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'parameter_code': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -737,13 +774,18 @@ class UploadData(object):
                                        )
             row_list.append(parameter_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'parameter')
         return message
     
     def load_qmeas_data(self, csv_pathname):
         columns = QMEAS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -783,7 +825,8 @@ class UploadData(object):
                               )
             row_list.append(qmeas_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'QMEAS')
         return message
     
@@ -833,7 +876,8 @@ class UploadData(object):
                                          )
             row_list.append(rare_cation_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'rare cation')
         return message
     
@@ -879,13 +923,18 @@ class UploadData(object):
                                        )
             row_list.append(raw_cation_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'raw cation')
         return message
     
     def load_rp_desc_data(self, csv_pathname):
         columns = RP_DESC_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -899,13 +948,20 @@ class UploadData(object):
                                  )
             row_list.append(rp_desc_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'RP description')
         return message
     
     def load_sample_data(self, csv_pathname, date_col=2, time_col=3):
         columns = SAMPLE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      date_col=date_col, 
+                                      time_col=time_col,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -935,7 +991,8 @@ class UploadData(object):
                                 )
             row_list.append(sample_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'sample')
         return message
             
@@ -957,13 +1014,18 @@ class UploadData(object):
                                          )        
             row_list.append(sample_grp_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'sample group')
         return message
     
     def load_site_data(self, csv_pathname):
         columns = SITE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object, 'hyd_unit': object, 'nwis_station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -1009,13 +1071,20 @@ class UploadData(object):
                             )
             row_list.append(site_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'site')
         return message
     
     def load_soil_profile_data(self, csv_pathname, date_col=2, time_col=3):
         columns = SOIL_PROFILE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      date_col=date_col, 
+                                      time_col=time_col,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         print(df_records)
         row_list = []
@@ -1062,13 +1131,18 @@ class UploadData(object):
                                       )
             row_list.append(soil_profile_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'soil profile sample')
         return message
     
     def load_test_site_data(self, csv_pathname):
         columns = TEST_SITE_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      dtype={'station_no': object, 'hyd_unit': object, 'nwis_station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -1114,13 +1188,20 @@ class UploadData(object):
                                      )
             row_list.append(test_site_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'test site')
         return message
     
     def load_uv_results_data(self, csv_pathname, date_col=2, time_col=3):
         columns = UV_RESULTS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns, date_col=date_col, time_col=time_col)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      date_col=date_col, 
+                                      time_col=time_col,
+                                      dtype={'station_no': object, 'parameter_code': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -1138,19 +1219,24 @@ class UploadData(object):
                                       )
             row_list.append(uv_result_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'UV result')
         return message
     
     def load_wellhead_measurement_data(self, csv_pathname):
         columns = WELL_HEAD_MEAS_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtypes={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
             depth = row['depth']
-            meas_date = row['meas_date']
+            meas_date = str_to_date(row['meas_date'])
             depth_to_ws = row['depth_to_ws']
             ws_elev = row['ws_elev']
             ngvd_ws_elev = row['ngvd_ws_elev']
@@ -1164,18 +1250,23 @@ class UploadData(object):
                                              )
             row_list.append(wellhead_meas_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'wellhead measurement')
         return message
     
     def load_wellhead_mp_data(self, csv_pathname):
         columns = WELL_HEAD_MP_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns,
+                                      dtype={'station_no': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
             station_no = row['station_no']
-            mp_date = row['mp_date']
+            mp_date = str_to_date(row['mp_date'])
             mp_valid = row['mp_valid']
             mp_desc = row['mp_desc']
             local_mp_elev = row['local_mp_elev']
@@ -1190,7 +1281,8 @@ class UploadData(object):
                                          )
             row_list.append(wellhead_mp_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'wellhead mp result')
         return message
     
@@ -1220,7 +1312,7 @@ class UploadData(object):
                 so4_unit = self.mg_per_liter
             else:
                 so4_unit = None
-            whls_anion_row = Anion(
+            wslh_anion_row = Anion(
                                    record_number=record_number,
                                    analyzing_lab=analyzing_lab,
                                    flagcl=flagcl,
@@ -1233,13 +1325,14 @@ class UploadData(object):
                                    no3_unit=no3_unit,
                                    so4_unit=so4_unit
                                    )
-            row_list.append(whls_anion_row)
+            row_list.append(wslh_anion_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'WHLS anion')
         return message
     
-    def load_whls_cation_data(self, csv_pathname):
+    def load_wslh_cation_data(self, csv_pathname):
         columns = WSLH_CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -1307,13 +1400,18 @@ class UploadData(object):
                                      )
             row_list.append(wslh_cation_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'WSLH cation')
         return message  
     
     def load_www_sites_data(self, csv_pathname):
         columns = WWW_SITES_COLUMNS
-        df = self._dataframe_from_csv(csv_pathname, columns=columns)
+        df = self._dataframe_from_csv(
+                                      csv_pathname, 
+                                      columns=columns, 
+                                      dtype={'station': object, 'latitude': object, 'longitude': object}
+                                      )
         df_records = self._dataframe_to_records(df)
         row_list = []
         for row in df_records:
@@ -1341,6 +1439,7 @@ class UploadData(object):
                                      )
             row_list.append(www_sites_row)
         self.session.add_all(row_list)
-        self.session.commit()
+        if self.commit:
+            self.session.commit()
         message = self.return_message.format(len(row_list), 'WWW sites')
         return message
