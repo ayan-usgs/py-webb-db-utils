@@ -4,7 +4,6 @@ Created on Sep 9, 2014
 @author: ayan
 '''
 from datetime import datetime
-import numpy as np
 import pandas as pd
 from pandas.io.parsers import read_csv
 from db_utils import AlchemDB
@@ -21,6 +20,20 @@ from db_mappings.upload_columns import (ANION_COLUMNS, BULLEN_CATION_COLUMNS, CA
 
 
 def string_to_datetime(series, date_col, time_col, datetime_format='%m/%d/%y %H:%M:%S'):
+    
+    """
+    Convert a string of the format specified in the datetime_format
+    parameter to a Python datatime object.
+    
+    :param pandas.Series series: a pandas series within a dataframe
+    :param int date_col: column index with dates (start counting from the left of the csv starting with 0)
+    :param int time_col: column index with time (start counting from the left of the csv starting with 0)
+    :param str datetime_format: string specifying the datetime format as Python directives
+    :return: date
+    :rtype: datetime.datetime
+    
+    """
+    
     date_str = series[date_col]
     time_str = series[time_col]
     datetime_str = '{date} {time}'.format(date=date_str, time=time_str)
@@ -31,12 +44,34 @@ def string_to_datetime(series, date_col, time_col, datetime_format='%m/%d/%y %H:
     return datetime_obj
 
 
-def str_to_date(date_str, time_format='%m/%d/%y'):
-    datetime_obj = datetime.strptime(date_str, time_format)
+def str_to_date(date_str, date_format='%m/%d/%y'):
+    
+    """
+    Convert a date string to a Python date object.
+    
+    :param str date_str: date string
+    :param str date_format: string specifying the date format as Python directives
+    :return: date
+    :rtype: datetime.datetime.date
+    """
+    
+    datetime_obj = datetime.strptime(date_str, date_format)
     return datetime_obj.date()
 
 
 def pad_string(string, total_length=5, padding_element='0'):
+    
+    """
+    Take a string and increase its length to the specified total length
+    by prepending the string specified in the padding element parameter.
+    
+    :param str string: a string
+    :param int total_length: desired total length of the string
+    :param str padding_element: the string to be used for padding
+    :return: string of the specified total_length
+    :rtype: str
+    """
+    
     force_string = str(string)
     length_to_pad = 5 - len(force_string)
     if length_to_pad > 0:
@@ -48,6 +83,17 @@ def pad_string(string, total_length=5, padding_element='0'):
 
 
 def clean_string_elements(element):
+    
+    """
+    Remove unsafe characters from strings.
+    
+    :param element: a piece of data
+    :type element: pandas.DataFrame or pandas.Series element
+    :return: UTF-8 safe value
+    :rtype: pandas.DataFrame or pandas.Series element
+    
+    """
+    
     try:
         int_str = element.decode('utf-8-sig')
         unicode_str = int_str.encode('utf-8')
@@ -57,6 +103,24 @@ def clean_string_elements(element):
 
 
 class UploadData(object):
+    
+    """
+    Upload data from CSV files into the WEBB database.
+    CSV files are expected to be tab delimited by default.
+    
+    All columns in the CSV file must be in the same order as the
+    column order specified in the db_mappings.upload_columns
+    module. In addition, the CSV file itself must not have 
+    a header column. By default, dates are expected to be of
+    from mm/dd/yy (e.g '02/23/14') and times are expected to
+    be of form HH:MM:SS (e.g. '15:01:45') within the CSV
+    file.
+    
+    :param str schema: schema user name
+    :param str password: schema user password
+    :param str db_name: database name
+    :param bool commit: determines whether to commit after each laod method is run (defaults to True)
+    """
     
     mg_per_liter = 'mg/L'
     ug_per_liter = 'ug/L'
@@ -73,8 +137,27 @@ class UploadData(object):
         self.session = self.acdb.create_session()
         self.commit = commit
 
-    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine='c', dtype=None,
+    def _dataframe_from_csv(self, csv_pathname, columns, sep='\t', engine=None, dtype=None,
                             header=None, parse_dates=False, date_parser=None, date_col=None, time_col=None):
+        
+        """
+        Internal method for reading a csv file into a Pandas dataframe,
+        
+        :param str csv_pathname: path to the csv file
+        :param columns: iterable of column names
+        :type columns: list or tuple
+        :param str sep: string specifing the type of delimiter used in the csv file.
+        :param str engine: parser engine to use ('c' or 'python')
+        :param dict dtype: dictionary specifying datatypes for each column; useful when pandas does not correctly determine the datatype
+        :param int header: row number (counting from 0) of the header row within the csv file
+        :param bool parse_dates: boolean that specifies whether dates are directly parsed into Python date objects
+        :param function date_parser: custom function for parsing dates
+        :param int date_col: column index with dates (start counting from the left of the csv starting with 0)
+        :param int time_col: column index with time (start counting from the left of the csv starting with 0)
+        :return: csv data
+        :rtype: pandas.DataFrame
+        """
+        
         raw_df = read_csv(filepath_or_buffer=csv_pathname, sep=sep, index_col=None, engine=engine, header=header, 
                           names=columns, parse_dates=parse_dates, date_parser=date_parser, dtype=dtype)
         if date_col and time_col:
@@ -88,14 +171,44 @@ class UploadData(object):
         return final_df_no_nans
     
     def _dataframe_to_records(self, dataframe):
+        
+        """
+        Converts a dataframe to a list of dictionaries.
+        
+        :param pandas.DataFrame dataframe: a dataframe object
+        :return: list of dictionaries
+        :rtype: list
+        """
+        
         df_records = dataframe.to_dict('records')
         return df_records
+    
+    def commit_session_loads(self):
+        
+        """
+        Allows manual commit of data loaded
+        into the database.
+        """
+        self.session.commit()
+        return 'Commit all data loaded in this session.'
         
     def close_session(self):
+        
+        """
+        Close the current database session.
+        """
+        
         self.session.close()
         return 'Session closed'
     
     def load_anion_data(self, csv_pathname):
+        """
+        Load anion data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = ANION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -152,6 +265,14 @@ class UploadData(object):
         return message
     
     def load_bullen_cation_data(self, csv_pathname):
+        """
+        Load cation data analyzed by the Menlo Park Strontium
+        Isotope Lab from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = BULLEN_CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -244,6 +365,13 @@ class UploadData(object):
         return message
     
     def load_carbon_data(self, csv_pathname):
+        """
+        Load carbon data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = CARBON_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -279,6 +407,13 @@ class UploadData(object):
         return message
     
     def load_carbon_gas_data(self, csv_pathname):
+        """
+        Load carbon gas data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = CARBON_GAS_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -306,6 +441,13 @@ class UploadData(object):
         return message
     
     def load_cation_data(self, csv_pathname):
+        """
+        Load cation data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -379,6 +521,13 @@ class UploadData(object):
         return message
     
     def load_dv_results_data(self, csv_pathname):
+        """
+        Load DV result data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = DV_RESULTS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -411,6 +560,13 @@ class UploadData(object):
         return message
     
     def load_field_data(self, csv_pathname):
+        """
+        Load field data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = FIELD_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -453,6 +609,13 @@ class UploadData(object):
         return message
     
     def load_flux_chamber_data(self, csv_pathname):
+        """
+        Load flux chamber data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = FLUX_CHAMBER_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -484,6 +647,15 @@ class UploadData(object):
         return message
     
     def load_gage_ht_meas_data(self, csv_pathname, date_col=1, time_col=2):
+        """
+        Load anion data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :param int date_col: column index with dates (start counting from the left of the csv starting with 0; defaults to 1)
+        :param int time_col: column index with time (start counting from the left of the csv starting with 0; defaults to 2)
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = GAGE_HT_MEAS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -517,6 +689,13 @@ class UploadData(object):
         return message
     
     def load_gage_ht_rp_data(self, csv_pathname):
+        """
+        Load gage height rp data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = GAGE_HT_RP_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -548,6 +727,13 @@ class UploadData(object):
         return message
     
     def load_strontium_isotope_data(self, csv_pathname):
+        """
+        Load strontium data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = ISOTOPE_STRONTIUM_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -580,6 +766,13 @@ class UploadData(object):
         return message
     
     def load_water_isotope_data(self, csv_pathname):
+        """
+        Load water isotope data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = ISOTOPE_WATER_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -625,6 +818,13 @@ class UploadData(object):
         return message
     
     def load_mercury_data(self, csv_pathname):
+        """
+        Load mercury data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = MERCURY_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -666,6 +866,13 @@ class UploadData(object):
         return message
     
     def load_nutrient_data(self, csv_pathname):
+        """
+        Load nutrient data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = NUTRIENT_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -745,6 +952,13 @@ class UploadData(object):
         return message
     
     def load_parameters(self, csv_pathname):
+        """
+        Load parameters data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = PARAMETERS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -780,6 +994,13 @@ class UploadData(object):
         return message
     
     def load_qmeas_data(self, csv_pathname):
+        """
+        Load qmeas data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = QMEAS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -831,6 +1052,13 @@ class UploadData(object):
         return message
     
     def load_rare_cation_data(self, csv_pathname):
+        """
+        Load rare cation data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = RARE_CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -882,6 +1110,13 @@ class UploadData(object):
         return message
     
     def load_raw_cation_data(self, csv_pathname):
+        """
+        Load raw cation data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = RAW_CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -929,6 +1164,13 @@ class UploadData(object):
         return message
     
     def load_rp_desc_data(self, csv_pathname):
+        """
+        Load rp data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = RP_DESC_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -954,6 +1196,15 @@ class UploadData(object):
         return message
     
     def load_sample_data(self, csv_pathname, date_col=2, time_col=3):
+        """
+        Load sample data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :param int date_col: column index with dates (start counting from the left of the csv starting with 0; defaults to 1)
+        :param int time_col: column index with time (start counting from the left of the csv starting with 0; defaults to 2)
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = SAMPLE_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -997,6 +1248,13 @@ class UploadData(object):
         return message
             
     def load_sample_group_data(self, csv_pathname):
+        """
+        Load sample group data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = SAMPLE_GROUP_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -1020,6 +1278,13 @@ class UploadData(object):
         return message
     
     def load_site_data(self, csv_pathname):
+        """
+        Load new sites from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = SITE_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1077,6 +1342,15 @@ class UploadData(object):
         return message
     
     def load_soil_profile_data(self, csv_pathname, date_col=2, time_col=3):
+        """
+        Load soil profile data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :param int date_col: column index with dates (start counting from the left of the csv starting with 0; defaults to 1)
+        :param int time_col: column index with time (start counting from the left of the csv starting with 0; defaults to 2)
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = SOIL_PROFILE_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1137,6 +1411,13 @@ class UploadData(object):
         return message
     
     def load_test_site_data(self, csv_pathname):
+        """
+        Load test site data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = TEST_SITE_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1194,6 +1475,15 @@ class UploadData(object):
         return message
     
     def load_uv_results_data(self, csv_pathname, date_col=2, time_col=3):
+        """
+        Load UV result data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :param int date_col: column index with dates (start counting from the left of the csv starting with 0; defaults to 2)
+        :param int time_col: column index with time (start counting from the left of the csv starting with 0; defaults to 3)
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = UV_RESULTS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1225,6 +1515,13 @@ class UploadData(object):
         return message
     
     def load_wellhead_measurement_data(self, csv_pathname):
+        """
+        Load wellhead measurement from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = WELL_HEAD_MEAS_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1256,6 +1553,13 @@ class UploadData(object):
         return message
     
     def load_wellhead_mp_data(self, csv_pathname):
+        """
+        Load wellhead mp data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = WELL_HEAD_MP_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
@@ -1287,6 +1591,13 @@ class UploadData(object):
         return message
     
     def load_wslh_anion_data(self, csv_pathname):
+        """
+        Load Wisconsin State Lab of Hygiene anion data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = WSLH_ANION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -1333,6 +1644,13 @@ class UploadData(object):
         return message
     
     def load_wslh_cation_data(self, csv_pathname):
+        """
+        Load Wisconsin State Lab of Hygiene cation data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = WSLH_CATION_COLUMNS
         df = self._dataframe_from_csv(csv_pathname, columns=columns)
         df_records = self._dataframe_to_records(df)
@@ -1406,6 +1724,13 @@ class UploadData(object):
         return message  
     
     def load_www_sites_data(self, csv_pathname):
+        """
+        Load www site anion data from a csv file into the database.
+        
+        :param str csv_pathname: path to the csv file
+        :return: message detailing number of records loaded.
+        :rtype: str
+        """
         columns = WWW_SITES_COLUMNS
         df = self._dataframe_from_csv(
                                       csv_pathname, 
