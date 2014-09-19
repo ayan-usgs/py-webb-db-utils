@@ -1,10 +1,14 @@
 Example Usage
 **********************************
-Illustration of using this package to retrieve data through
-a Python interactive console.
+Illustration of using this package to retrieve and upload data 
+through a Python interactive console.
 
 Data Retrieval
 ==================================
+
+Data Retrieval Example
+----------------------------------
+
 This example is providing assuming that one is in the 
 py-webb-db-utils has been installed as a package. These 
 examples show MS Excel 2007 exports being placed at 
@@ -41,6 +45,10 @@ C:/Users/joe/downloads/, but can be any appropriate directory.
 
 Data Entry
 ==================================
+
+Data Entry Example
+----------------------------------
+
 This example demonstrates the use this package to load
 data from a CSV into the database. The files for this demonstration
 can be found in the example_upload_files directory of this project.
@@ -79,3 +87,28 @@ the database session needs to be ended. This can be
 done as follows:
 
 >>> ud.close_session()
+
+Data Load Ordering
+----------------------------------
+
+The order in which loads are performed is critical to the success
+of a particular load. The database has a number of referential and
+uniqueness constraints that may cause problems if data is loaded
+out of other. In the data load example, the sample data was loaded before
+the strontium isotope data because the strontium data references the
+sample record number. Hence, loading the strontium data first would have
+yield an Oracle error saying that a database constraint had been violated.
+
+Recommended Data Load Order
+++++++++++++++++++++++++++++++++++
+
+This is a recommended data load order. Not all steps may apply to 
+all loading activities. If something does not apply, skip to the
+next item. For example, there may not be a new site to add to the
+database, so sample data would be loaded first.
+
+1. Site
+2. Sample
+3. RP Desc
+4. Other (e.g. anion, cation, UV, etc.)
+

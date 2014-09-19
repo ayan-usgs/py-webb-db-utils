@@ -188,19 +188,21 @@ Run the following command: \code{python setup.py install}
 \label{modules:base-sql}
 Module containing the SQL used in the database queries.
 Should the SQL need to be changed, this is the place to
-do it.
+do it. This module is located at webb\_utils.base\_sql.
 
 
 \section{Sites}
 \label{modules:sites}
 List of sites and site groups. This sites may be changed
-if a new site is added to the WEBB project.
+if a new site is added to the WEBB project. This module is
+located at webb\_utils.sites.
 
 
 \section{Retrieve Data}
 \label{modules:retrieve-data}
 Module containing classes for creating objects to
-effect data retrieval from an Oracle database.
+effect data retrieval from an Oracle database. This
+module is located at webb\_utils.retrieve\_data.
 \index{RetrieveData (class in webb\_utils.retrieve\_data)}
 
 \begin{fulllineitems}
@@ -459,7 +461,8 @@ pandas.DataFrame
 \label{modules:upload-data}
 Module functions and classes to effect the upload
 of new data into the data from CSV files provided
-by a laboratory.
+by a laboratory. This module is located in
+webb\_utils.upload\_data.
 \index{string\_to\_datetime() (in module webb\_utils.upload\_data)}
 
 \begin{fulllineitems}
@@ -1258,14 +1261,41 @@ sqlalchemy.orm.session.Session
 
 
 
+\section{DB Mappings}
+\label{modules:db-mappings}
+Subpackage containing SQLAlchemy mappings to Oracle tables
+and columns pertinent to uploads
+
+
+\subsection{Table Mappings}
+\label{modules:table-mappings}
+The webb\_utils.db\_mapping.db\_table\_mapping contains mappings to tables
+and table columns for the SQLAlchemy ORM. Any changes to the tables in
+the databases (e.g. new column, removed column, new foreign key etc.)
+will need to be reflected as well. Full documentation for using
+SQLAlchemy object-relational configuration can be found at:
+\href{http://docs.sqlalchemy.org/en/rel\_0\_9/orm/extensions/declarative.html}{http://docs.sqlalchemy.org/en/rel\_0\_9/orm/extensions/declarative.html}.
+
+
+\subsection{Upload Columns}
+\label{modules:upload-columns}
+The webb\_utils\_db\_mapping.upload\_columns module contains tuples containing
+the pertinent data columns in a CSV file to be loaded into the database.
+The columns in the CSV file have the sample ordering as the column names
+in the tuples or errors will ensue.
+
+
 \chapter{Example Usage}
 \label{example_usage:example-usage}\label{example_usage::doc}
-Illustration of using this package to retrieve data through
-a Python interactive console.
+Illustration of using this package to retrieve and upload data
+through a Python interactive console.
 
 
 \section{Data Retrieval}
 \label{example_usage:data-retrieval}
+
+\subsection{Data Retrieval Example}
+\label{example_usage:data-retrieval-example}
 This example is providing assuming that one is in the
 py-webb-db-utils has been installed as a package. These
 examples show MS Excel 2007 exports being placed at
@@ -1305,6 +1335,9 @@ C:/Users/joe/downloads/, but can be any appropriate directory.
 
 \section{Data Entry}
 \label{example_usage:data-entry}
+
+\subsection{Data Entry Example}
+\label{example_usage:data-entry-example}
 This example demonstrates the use this package to load
 data from a CSV into the database. The files for this demonstration
 can be found in the example\_upload\_files directory of this project.
@@ -1349,6 +1382,39 @@ done as follows:
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{ud}\PYG{o}{.}\PYG{n}{close\PYGZus{}session}\PYG{p}{(}\PYG{p}{)}
 \end{Verbatim}
+
+
+\subsection{Data Load Ordering}
+\label{example_usage:data-load-ordering}
+The order in which loads are performed is critical to the success
+of a particular load. The database has a number of referential and
+uniqueness constraints that may cause problems if data is loaded
+out of other. In the data load example, the sample data was loaded before
+the strontium isotope data because the strontium data references the
+sample record number. Hence, loading the strontium data first would have
+yield an Oracle error saying that a database constraint had been violated.
+
+
+\subsubsection{Recommended Data Load Order}
+\label{example_usage:recommended-data-load-order}
+This is a recommended data load order. Not all steps may apply to
+all loading activities. If something does not apply, skip to the
+next item. For example, there may not be a new site to add to the
+database, so sample data would be loaded first.
+\begin{enumerate}
+\item {} 
+Site
+
+\item {} 
+Sample
+
+\item {} 
+RP Desc
+
+\item {} 
+Other (e.g. anion, cation, UV, etc.)
+
+\end{enumerate}
 
 
 \chapter{Indices and tables}

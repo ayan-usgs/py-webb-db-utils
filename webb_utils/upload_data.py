@@ -141,7 +141,7 @@ class UploadData(object):
                             header=None, parse_dates=False, date_parser=None, date_col=None, time_col=None):
         
         """
-        Internal method for reading a csv file into a Pandas dataframe,
+        Internal method for reading a csv file into a Pandas dataframe.
         
         :param str csv_pathname: path to the csv file
         :param columns: iterable of column names
