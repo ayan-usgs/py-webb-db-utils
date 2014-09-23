@@ -62,6 +62,9 @@ will need to be reflected as well. Full documentation for using
 SQLAlchemy object-relational configuration can be found at:
 http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html.
 
+.. automodule:: webb_utils.db_mappings.db_table_mapping
+	:members:
+
 Upload Columns
 ----------------------------------
 
@@ -70,6 +73,5 @@ the pertinent data columns in a CSV file to be loaded into the database.
 The columns in the CSV file have the sample ordering as the column names
 in the tuples or errors will ensue.
 
-
-
-
+.. automodule:: webb_utils.db_mappings.upload_columns
+	:members:

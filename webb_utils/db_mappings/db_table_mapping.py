@@ -11,6 +11,9 @@ Base = declarative_base()
 
 
 class SampleMethod(Base):
+    """
+    ORM mapping to the SAMPLE_METHOD table.
+    """
     
     __tablename__ = u'SAMPLE_METHOD'
     
@@ -18,6 +21,9 @@ class SampleMethod(Base):
     
 
 class SampleMedium(Base):
+    """
+    ORM mapping to the SAMPLE_MEDIUM table.
+    """
     
     __tablename__ = u'SAMPLE_MEDIUM'
     
@@ -25,6 +31,9 @@ class SampleMedium(Base):
     
     
 class SampleType(Base):
+    """
+    ORM mapping to the SAMPLE_TYPE table.
+    """
     
     __tablename__ = u'SAMPLE_TYPE'
     
@@ -32,6 +41,9 @@ class SampleType(Base):
     
     
 class SiteType(Base):
+    """
+    ORM mapping to the SITE_TYPE table.
+    """
     
     __tablename__ = u'SITE_TYPE'
     
@@ -39,6 +51,9 @@ class SiteType(Base):
     
     
 class SiteGroup(Base):
+    """
+    ORM mapping to the SITE_GROUP table.
+    """
     
     __tablename__ = u'SITE_GROUP'
     
@@ -46,7 +61,9 @@ class SiteGroup(Base):
     
     
 class Site(Base):
-    
+    """
+    ORM mapping to the SITE table.
+    """    
     __tablename__ = u'SITE'
     
     station_no = Column(String, nullable=False, primary_key=True)
@@ -71,6 +88,9 @@ class Site(Base):
 
 
 class Sample(Base):
+    """
+    ORM mapping to the SAMPLE table.
+    """
     
     __tablename__ = u'SAMPLE'
     
@@ -88,6 +108,9 @@ class Sample(Base):
     
 
 class Lab(Base):
+    """
+    ORM mapping to the LAB table.
+    """
     
     __tablename__ = u'LAB'
     
@@ -95,6 +118,9 @@ class Lab(Base):
 
 
 class Parameters(Base):
+    """
+    ORM mapping to the PARAMETERS table 
+    """
     
     __tablename__ = u'PARAMETERS'
     
@@ -109,6 +135,9 @@ class Parameters(Base):
     
     
 class RPDesc(Base):
+    """
+    ORM mapping to the RP_DESC_table.
+    """
     
     __tablename__ = u'RP_DESC'
     
@@ -118,6 +147,9 @@ class RPDesc(Base):
     
 
 class Anion(Base):
+    """
+    ORM mapping to the ANION table.
+    """
     
     __tablename__ = u'ANION'
     
@@ -138,6 +170,9 @@ class Anion(Base):
 
 
 class Cation(Base):
+    """
+    ORM mapping to the CATION table.
+    """
     
     __tablename__ = u'CATION'
     
@@ -171,6 +206,9 @@ class Cation(Base):
     
     
 class Carbon(Base):
+    """
+    ORM mapping to the CARBON table.
+    """
     
     __tablename__ = u'CARBON'
     
@@ -187,6 +225,9 @@ class Carbon(Base):
     
     
 class CarbonGas(Base):
+    """
+    ORM mapping to the CARBON_GAS table.
+    """
     
     __tablename__ = u'CARBON_GAS'
     
@@ -199,6 +240,9 @@ class CarbonGas(Base):
     
     
 class DVFlag(Base):
+    """
+    ORM mapping to the DV_FLAG table.
+    """
     
     __tablename__ = u'DV_FLAG'
     
@@ -206,6 +250,9 @@ class DVFlag(Base):
     
 
 class DVResults(Base):
+    """
+    ORM mapping to the DV_RESULTS table.
+    """
     
     __tablename__ = u'DV_RESULTS'
     
@@ -217,6 +264,9 @@ class DVResults(Base):
     
     
 class Field(Base):
+    """
+    ORM mapping to the FIELD table.
+    """
     
     __tablename__ = u'FIELD'
     
@@ -235,6 +285,9 @@ class Field(Base):
     
     
 class FluxChamber(Base):
+    """
+    ORM mapping to the FLUX_CHAMBER table.
+    """
     
     __tablename__ = u'FLUX_CHAMBER'
     
@@ -247,6 +300,9 @@ class FluxChamber(Base):
     
     
 class GageHtMeas(Base):
+    """
+    ORM mapping to the GAGE_HT_MEAS table.
+    """
     
     __tablename__ = u'GAGE_HT_MEAS'
     
@@ -259,6 +315,11 @@ class GageHtMeas(Base):
     
     
 class GageHtRp(Base):
+    """
+    ORM mapping to the GAGE_HT_RP table.
+    A composite foreign key relationship
+    is explicitly define.
+    """
     
     __tablename__ = u'GAGE_HT_RP'
     __table_args__ = (
@@ -274,6 +335,9 @@ class GageHtRp(Base):
     
 
 class IsotopeStrontium(Base):
+    """
+    ORM mapping to the ISOTOPE_STRONTIUM table.
+    """
     
     __tablename__ = u'ISOTOPE_STRONTIUM'
     
@@ -286,6 +350,9 @@ class IsotopeStrontium(Base):
     sr87_sr86_unit = Column('SR_87#SR86_UNIT', String)
 
 class IsotopeWater(Base):
+    """
+    ORM mapping to the ISOTOPE_WATER table.
+    """
     
     __tablename__ = u'ISOTOPE_WATER'
     
@@ -304,6 +371,9 @@ class IsotopeWater(Base):
     
     
 class Mercury(Base):
+    """
+    ORM mapping to the MERCURY table.
+    """
     
     __tablename__ = u'MERCURY'
     
@@ -323,7 +393,9 @@ class Mercury(Base):
     
 
 class Nutrient(Base):
-    
+    """
+    ORM mapping to the NURIENT table.
+    """
     __tablename__ = u'NUTRIENT'
     
     record_number = Column(Integer, ForeignKey(Sample.record_number), nullable=False, primary_key=True)
@@ -351,6 +423,9 @@ class Nutrient(Base):
     nh4_unit = Column(String)
     
 class QMeas(Base):
+    """
+    ORM mapping to QMEAS table.
+    """
     
     __tablename__ = u'QMEAS'
     
@@ -373,6 +448,9 @@ class QMeas(Base):
     
     
 class RareCation(Base):
+    """
+    ORM mapping to the RARE_CATION table.
+    """
     
     __tablename__ = u'RARE_CATION'
     
@@ -397,6 +475,9 @@ class RareCation(Base):
     
     
 class RawCation(Base):
+    """
+    ORM mapping to the RAW_CATION table.
+    """
     
     __tablename__ = u'RAW_CATION'
     
@@ -419,6 +500,9 @@ class RawCation(Base):
     
     
 class SampleGroup(Base):
+    """
+    ORM mapping to the SAMPLE_GROUP table.
+    """
     
     __tablename__ = u'SAMPLE_GROUP'
     
@@ -429,6 +513,9 @@ class SampleGroup(Base):
     
     
 class TestSite(Base):
+    """
+    ORM mapping to the TEST_SITE table.
+    """
     
     __tablename__ = u'TEST_SITE'
     
@@ -454,6 +541,9 @@ class TestSite(Base):
     
     
 class UVResults(Base):
+    """
+    ORM mapping to the UV_RESULTS table.
+    """
     
     __tablename__ = u'UV_RESULTS'
     
@@ -465,6 +555,11 @@ class UVResults(Base):
     
     
 class WellHeadMeas(Base):
+    """
+    ORM mapping to the WELL_HEAD_MEAS table.
+    This table contains a composite foreign
+    key.
+    """
     
     __tablename__ = u'WELL_HEAD_MEAS'
     __table_args__ = (
@@ -480,6 +575,9 @@ class WellHeadMeas(Base):
     
     
 class WellHeadMp(Base):
+    """
+    ORM mapping to the WELL_HEAD_MP table.
+    """
     
     __tablename__ = u'WELL_HEAD_MP'
     
@@ -492,6 +590,9 @@ class WellHeadMp(Base):
     
     
 class WwwSites(Base):
+    """
+    ORM mapping to the WWW_SITES table.
+    """
     
     __tablename__ = u'WWW_SITES'
     

@@ -88,6 +88,10 @@ done as follows:
 
 >>> ud.close_session()
 
+There are a total of 30 different loads into the database that can be performed; each 
+of these loads as its own method for loading the data. These methods and the parameters
+they accept documented in section 2.4 of this documentation.
+
 Data Load Ordering
 ----------------------------------
 

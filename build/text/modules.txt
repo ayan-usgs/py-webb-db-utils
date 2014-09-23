@@ -1,0 +1,1061 @@
+
+Description of Package Modules
+******************************
+
+
+Base SQL
+========
+
+Module containing the SQL used in the database queries. Should the SQL
+need to be changed, this is the place to do it. This module is located
+at webb_utils.base_sql.
+
+
+Sites
+=====
+
+List of sites and site groups. This sites may be changed if a new site
+is added to the WEBB project. This module is located at
+webb_utils.sites.
+
+
+Retrieve Data
+=============
+
+Module containing classes for creating objects to effect data
+retrieval from an Oracle database. This module is located at
+webb_utils.retrieve_data.
+
+class class webb_utils.retrieve_data.RetrieveData(schema, password, db_name, excel_indexes=False)
+
+   Retrieve data object to execute and retrieve the results of six
+   database queries deemed important to the USGS WEBB project.
+
+   Parameters:
+      * **schema** (*str*) -- schema user name
+
+      * **password** (*str*) -- schema user password
+
+      * **db_name** (*str*) -- database name
+
+      * **excel_indexes** (*bool*) -- whether an exported excel file
+        should have Pandas dataframe indexes; default is False
+
+   _create_dataframe(data, columns)
+
+      Internal method to create a pandas dataframe.
+
+      Parameters:
+         * **data** (*list of tuples*) -- raw query results
+
+         * **columns** (*list of strings*) -- dataframe column names
+
+      Returns:
+         dataframe of query results
+
+      Return type:
+         pandas.DataFrame
+
+   get_carbon_data(start_date, end_date, groups=None, excel_export_path=None)
+
+      Get carbon data. Returns Pandas dataframe, optional excel
+      export. Returns results for all site groups if none is
+      specified.
+
+      Parameters:
+         * **start_date** (*str*) -- start date for database query
+           of form '01-JAN-2005'
+
+         * **end_date** (*str*) -- end date for database query of
+           form '01-JAN-2006'
+
+         * **groups** (*iterable of strings*) -- filter for site
+           groups
+
+         * **excel_export_path** (*string or None*) -- path for MS
+           Excel 2007 output (e.g. C:/tmp/my_export.xlsx; default
+           None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+   get_data_with_alkalinity(start_date, end_date, groups=None, excel_export_path=None)
+
+      Get data with alkalinity. Returns Pandas dataframe, optional
+      excel export. Returns results for all site groups if none is
+      specified.
+
+      Parameters:
+         * **start_date** (*str*) -- start date for database query
+           of form '01-JAN-2005'
+
+         * **end_date** (*str*) -- end date for database query of
+           form '01-JAN-2006'
+
+         * **groups** (*iterable of strings*) -- filter for site
+           groups
+
+         * **excel_export_path** (*string or None*) -- path for MS
+           Excel 2007 output (e.g. C:/tmp/my_export.xlsx; default
+           None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+   get_piezo_sites(start_date, end_date, groups=None, excel_export_path=None)
+
+      Get total organic carbon and total inorganic carbon. Returns
+      Pandas dataframe, optional excel export. Returns results for all
+      site groups if none is specified.
+
+      Parameters:
+         * **start_date** (*str*) -- start date for database query
+           of form '01-JAN-2005'
+
+         * **end_date** (*str*) -- end date for database query of
+           form '01-JAN-2006'
+
+         * **groups** (*iterable of strings*) -- filter for site
+           groups
+
+         * **excel_export_path** (*string or None*) -- path for MS
+           Excel 2007 output (e.g. C:/tmp/my_export.xlsx; default
+           None)
+
+      Returns:
+         dataframe
+
+      Return type:
+         pandas.DataFrame
+
+   get_site_info(excel_export_path=None)
+
+      Get site information (lat, lon, NWIS Station number, etc).
+      Returns Pandas dataframe, optional excel export.
+
+      Parameters:
+         **excel_export_path** (*string or None*) -- path for MS Excel
+         2007 output (e.g. C:/tmp/my_export.xlsx; default None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+   get_well_check_values(start_date, end_date, sites=None, excel_export_path=None)
+
+      Get well check values. Returns Pandas dataframe, optional excel
+      export. Returns query results for all sites if none are
+      specified.
+
+      Parameters:
+         * **start_date** (*str*) -- start date for database query
+           of form '01-JAN-2005'
+
+         * **end_date** (*str*) -- end date for database query of
+           form '01-JAN-2006'
+
+         * **sites** (*iterable of strings*) -- filter for sites
+
+         * **excel_export_path** (*string or None*) -- path for MS
+           Excel 2007 output (e.g. C:/tmp/my_export.xlsx; default
+           None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+   get_well_datums(excel_export_path=None)
+
+      Get well datums. Returns Pandas dataframe, optional excel
+      export.
+
+      Parameters:
+         **excel_export_path** (*string or None*) -- path for MS Excel
+         2007 output (e.g. C:/tmp/my_export.xlsx; default None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+   get_well_uvs(start_date, end_date, sites=None, excel_export_path=None)
+
+      Get well UV data. Returns Pandas dataframe, optional excel
+      export. Returns query results for all sites if none are
+      specified.
+
+      Parameters:
+         * **start_date** (*str*) -- start date for database query
+           of form '01-JAN-2005'
+
+         * **end_date** (*str*) -- end date for database query of
+           form '01-JAN-2006'
+
+         * **sites** (*iterable of strings*) -- filter for sites
+
+         * **excel_export_path** (*string or None*) -- path for MS
+           Excel 2007 output (e.g. C:/tmp/my_export.xlsx; default
+           None)
+
+      Returns:
+         query result
+
+      Return type:
+         pandas.DataFrame
+
+
+Upload Data
+===========
+
+Module functions and classes to effect the upload of new data into the
+data from CSV files provided by a laboratory. This module is located
+in webb_utils.upload_data.
+
+webb_utils.upload_data.string_to_datetime(series, date_col, time_col, datetime_format='%m/%d/%y %H:%M:%S')
+
+   Convert a string of the format specified in the datetime_format
+   parameter to a Python datatime object.
+
+   Parameters:
+      * **series** (*pandas.Series*) -- a pandas series within a
+        dataframe
+
+      * **date_col** (*int*) -- column index with dates (start
+        counting from the left of the csv starting with 0)
+
+      * **time_col** (*int*) -- column index with time (start
+        counting from the left of the csv starting with 0)
+
+      * **datetime_format** (*str*) -- string specifying the
+        datetime format as Python directives
+
+   Returns:
+      date
+
+   Return type:
+      datetime.datetime
+
+webb_utils.upload_data.str_to_date(date_str, date_format='%m/%d/%y')
+
+   Convert a date string to a Python date object.
+
+   Parameters:
+      * **date_str** (*str*) -- date string
+
+      * **date_format** (*str*) -- string specifying the date format
+        as Python directives
+
+   Returns:
+      date
+
+   Return type:
+      datetime.datetime.date
+
+webb_utils.upload_data.clean_string_elements(element)
+
+   Remove unsafe characters from strings.
+
+   Parameters:
+      **element** (*pandas.DataFrame or pandas.Series element*) -- a
+      piece of data
+
+   Returns:
+      UTF-8 safe value
+
+   Return type:
+      pandas.DataFrame or pandas.Series element
+
+class class webb_utils.upload_data.UploadData(schema, password, db_name, commit=True)
+
+   Upload data from CSV files into the WEBB database. CSV files are
+   expected to be tab delimited by default.
+
+   All columns in the CSV file must be in the same order as the column
+   order specified in the db_mappings.upload_columns module. In
+   addition, the CSV file itself must not have  a header column. By
+   default, dates are expected to be of from mm/dd/yy (e.g '02/23/14')
+   and times are expected to be of form HH:MM:SS (e.g. '15:01:45')
+   within the CSV file.
+
+   Parameters:
+      * **schema** (*str*) -- schema user name
+
+      * **password** (*str*) -- schema user password
+
+      * **db_name** (*str*) -- database name
+
+      * **commit** (*bool*) -- determines whether to commit after
+        each laod method is run (defaults to True)
+
+   close_session()
+
+      Close the current database session.
+
+   commit_session_loads()
+
+      Allows manual commit of data loaded into the database.
+
+   load_anion_data(csv_pathname)
+
+      Load anion data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_bullen_cation_data(csv_pathname)
+
+      Load cation data analyzed by the Menlo Park Strontium Isotope
+      Lab from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_carbon_data(csv_pathname)
+
+      Load carbon data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_carbon_gas_data(csv_pathname)
+
+      Load carbon gas data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_cation_data(csv_pathname)
+
+      Load cation data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_dv_results_data(csv_pathname)
+
+      Load DV result data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_field_data(csv_pathname)
+
+      Load field data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_flux_chamber_data(csv_pathname)
+
+      Load flux chamber data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_gage_ht_meas_data(csv_pathname, date_col=1, time_col=2)
+
+      Load anion data from a csv file into the database.
+
+      Parameters:
+         * **csv_pathname** (*str*) -- path to the csv file
+
+         * **date_col** (*int*) -- column index with dates (start
+           counting from the left of the csv starting with 0; defaults
+           to 1)
+
+         * **time_col** (*int*) -- column index with time (start
+           counting from the left of the csv starting with 0; defaults
+           to 2)
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_gage_ht_rp_data(csv_pathname)
+
+      Load gage height rp data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_mercury_data(csv_pathname)
+
+      Load mercury data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_nutrient_data(csv_pathname)
+
+      Load nutrient data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_parameters(csv_pathname)
+
+      Load parameters data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_qmeas_data(csv_pathname)
+
+      Load qmeas data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_rare_cation_data(csv_pathname)
+
+      Load rare cation data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_raw_cation_data(csv_pathname)
+
+      Load raw cation data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_rp_desc_data(csv_pathname)
+
+      Load rp data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_sample_data(csv_pathname, date_col=2, time_col=3)
+
+      Load sample data from a csv file into the database.
+
+      Parameters:
+         * **csv_pathname** (*str*) -- path to the csv file
+
+         * **date_col** (*int*) -- column index with dates (start
+           counting from the left of the csv starting with 0; defaults
+           to 1)
+
+         * **time_col** (*int*) -- column index with time (start
+           counting from the left of the csv starting with 0; defaults
+           to 2)
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_sample_group_data(csv_pathname)
+
+      Load sample group data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_site_data(csv_pathname)
+
+      Load new sites from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_soil_profile_data(csv_pathname, date_col=2, time_col=3)
+
+      Load soil profile data from a csv file into the database.
+
+      Parameters:
+         * **csv_pathname** (*str*) -- path to the csv file
+
+         * **date_col** (*int*) -- column index with dates (start
+           counting from the left of the csv starting with 0; defaults
+           to 1)
+
+         * **time_col** (*int*) -- column index with time (start
+           counting from the left of the csv starting with 0; defaults
+           to 2)
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_strontium_isotope_data(csv_pathname)
+
+      Load strontium data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_test_site_data(csv_pathname)
+
+      Load test site data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_uv_results_data(csv_pathname, date_col=2, time_col=3)
+
+      Load UV result data from a csv file into the database.
+
+      Parameters:
+         * **csv_pathname** (*str*) -- path to the csv file
+
+         * **date_col** (*int*) -- column index with dates (start
+           counting from the left of the csv starting with 0; defaults
+           to 2)
+
+         * **time_col** (*int*) -- column index with time (start
+           counting from the left of the csv starting with 0; defaults
+           to 3)
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_water_isotope_data(csv_pathname)
+
+      Load water isotope data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_wellhead_measurement_data(csv_pathname)
+
+      Load wellhead measurement from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_wellhead_mp_data(csv_pathname)
+
+      Load wellhead mp data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_wslh_anion_data(csv_pathname)
+
+      Load Wisconsin State Lab of Hygiene anion data from a csv file
+      into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_wslh_cation_data(csv_pathname)
+
+      Load Wisconsin State Lab of Hygiene cation data from a csv file
+      into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+   load_www_sites_data(csv_pathname)
+
+      Load www site anion data from a csv file into the database.
+
+      Parameters:
+         **csv_pathname** (*str*) -- path to the csv file
+
+      Returns:
+         message detailing number of records loaded.
+
+      Return type:
+         str
+
+
+DB Utils
+========
+
+Module containing utilites for database access.
+
+webb_utils.db_utils.create_db_filter_str(param_list)
+
+   Create an Oracle safe string from a Python iterable.
+
+   Parameters:
+      **param_list** -- list of strings
+
+   Returns:
+      Oracle safe string
+
+   Return type:
+      string
+
+class class webb_utils.db_utils.AlchemDB(schema, password, db_name)
+
+   Create an Oracle session.
+
+   Parameters:
+      * **schema** (*str*) -- schema user name
+
+      * **password** (*str*) -- schema user password
+
+      * **db_name** (*str*) -- database name
+
+   create_session()
+
+      Create an Oracle session
+
+      Returns:
+         Oracle database session
+
+      Return type:
+         sqlalchemy.orm.session.Session
+
+
+DB Mappings
+===========
+
+Subpackage containing SQLAlchemy mappings to Oracle tables and columns
+pertinent to uploads
+
+
+Table Mappings
+--------------
+
+The webb_utils.db_mapping.db_table_mapping contains mappings to tables
+and table columns for the SQLAlchemy ORM. Any changes to the tables in
+the databases (e.g. new column, removed column, new foreign key etc.)
+will need to be reflected as well. Full documentation for using
+SQLAlchemy object-relational configuration can be found at:
+http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html.
+
+Created on Sep 9, 2014
+
+@author: ayan
+
+class class webb_utils.db_mappings.db_table_mapping.Anion(**kwargs)
+
+   ORM mapping to the ANION table.
+
+class class webb_utils.db_mappings.db_table_mapping.Carbon(**kwargs)
+
+   ORM mapping to the CARBON table.
+
+class class webb_utils.db_mappings.db_table_mapping.CarbonGas(**kwargs)
+
+   ORM mapping to the CARBON_GAS table.
+
+class class webb_utils.db_mappings.db_table_mapping.Cation(**kwargs)
+
+   ORM mapping to the CATION table.
+
+class class webb_utils.db_mappings.db_table_mapping.DVFlag(**kwargs)
+
+   ORM mapping to the DV_FLAG table.
+
+class class webb_utils.db_mappings.db_table_mapping.DVResults(**kwargs)
+
+   ORM mapping to the DV_RESULTS table.
+
+class class webb_utils.db_mappings.db_table_mapping.Field(**kwargs)
+
+   ORM mapping to the FIELD table.
+
+class class webb_utils.db_mappings.db_table_mapping.FluxChamber(**kwargs)
+
+   ORM mapping to the FLUX_CHAMBER table.
+
+class class webb_utils.db_mappings.db_table_mapping.GageHtMeas(**kwargs)
+
+   ORM mapping to the GAGE_HT_MEAS table.
+
+class class webb_utils.db_mappings.db_table_mapping.GageHtRp(**kwargs)
+
+   ORM mapping to the GAGE_HT_RP table. A composite foreign key
+   relationship is explicitly define.
+
+class class webb_utils.db_mappings.db_table_mapping.IsotopeStrontium(**kwargs)
+
+   ORM mapping to the ISOTOPE_STRONTIUM table.
+
+class class webb_utils.db_mappings.db_table_mapping.IsotopeWater(**kwargs)
+
+   ORM mapping to the ISOTOPE_WATER table.
+
+class class webb_utils.db_mappings.db_table_mapping.Lab(**kwargs)
+
+   ORM mapping to the LAB table.
+
+class class webb_utils.db_mappings.db_table_mapping.Mercury(**kwargs)
+
+   ORM mapping to the MERCURY table.
+
+class class webb_utils.db_mappings.db_table_mapping.Nutrient(**kwargs)
+
+   ORM mapping to the NURIENT table.
+
+class class webb_utils.db_mappings.db_table_mapping.Parameters(**kwargs)
+
+   ORM mapping to the PARAMETERS table
+
+class class webb_utils.db_mappings.db_table_mapping.QMeas(**kwargs)
+
+   ORM mapping to QMEAS table.
+
+class class webb_utils.db_mappings.db_table_mapping.RPDesc(**kwargs)
+
+   ORM mapping to the RP_DESC_table.
+
+class class webb_utils.db_mappings.db_table_mapping.RareCation(**kwargs)
+
+   ORM mapping to the RARE_CATION table.
+
+class class webb_utils.db_mappings.db_table_mapping.RawCation(**kwargs)
+
+   ORM mapping to the RAW_CATION table.
+
+class class webb_utils.db_mappings.db_table_mapping.Sample(**kwargs)
+
+   ORM mapping to the SAMPLE table.
+
+class class webb_utils.db_mappings.db_table_mapping.SampleGroup(**kwargs)
+
+   ORM mapping to the SAMPLE_GROUP table.
+
+class class webb_utils.db_mappings.db_table_mapping.SampleMedium(**kwargs)
+
+   ORM mapping to the SAMPLE_MEDIUM table.
+
+class class webb_utils.db_mappings.db_table_mapping.SampleMethod(**kwargs)
+
+   ORM mapping to the SAMPLE_METHOD table.
+
+class class webb_utils.db_mappings.db_table_mapping.SampleType(**kwargs)
+
+   ORM mapping to the SAMPLE_TYPE table.
+
+class class webb_utils.db_mappings.db_table_mapping.Site(**kwargs)
+
+   ORM mapping to the SITE table.
+
+class class webb_utils.db_mappings.db_table_mapping.SiteGroup(**kwargs)
+
+   ORM mapping to the SITE_GROUP table.
+
+class class webb_utils.db_mappings.db_table_mapping.SiteType(**kwargs)
+
+   ORM mapping to the SITE_TYPE table.
+
+class class webb_utils.db_mappings.db_table_mapping.TestSite(**kwargs)
+
+   ORM mapping to the TEST_SITE table.
+
+class class webb_utils.db_mappings.db_table_mapping.UVResults(**kwargs)
+
+   ORM mapping to the UV_RESULTS table.
+
+class class webb_utils.db_mappings.db_table_mapping.WellHeadMeas(**kwargs)
+
+   ORM mapping to the WELL_HEAD_MEAS table. This table contains a
+   composite foreign key.
+
+class class webb_utils.db_mappings.db_table_mapping.WellHeadMp(**kwargs)
+
+   ORM mapping to the WELL_HEAD_MP table.
+
+class class webb_utils.db_mappings.db_table_mapping.WwwSites(**kwargs)
+
+   ORM mapping to the WWW_SITES table.
+
+
+Upload Columns
+--------------
+
+The webb_utils_db_mapping.upload_columns module contains tuples
+containing the pertinent data columns in a CSV file to be loaded into
+the database. The columns in the CSV file have the sample ordering as
+the column names in the tuples or errors will ensue.
+
+Created on Sep 9, 2014
+
+@author: ayan
+
+webb_utils.db_mappings.upload_columns.ANION_COLUMNS = ('record_number', 'analyzing_lab', 'Cl', 'NO3', 'SO4', 'flagCl', 'flagNO3', 'flagSO4', 'alkalinity_source', 'alkalinity')
+
+   Expected anion columns and ordering.
+
+webb_utils.db_mappings.upload_columns.BULLEN_CATION_COLUMNS = ('record_number', 'analyzing_lab', 'Na', 'Mg', 'Si', 'K', 'Ca', 'Mn', 'Fe', 'Sr', 'flagNa', 'flagMg', 'flagSi', 'flagK', 'flagCa', 'flagMn', 'flagFe', 'flagSr')
+
+   Expected bullen columns and ordering.
+
+webb_utils.db_mappings.upload_columns.CARBON_COLUMNS = ('record_number', 'analyzing_lab', 'TIC', 'TOC', 'UVA_254', 'UVA_280', 'flagTIC', 'flagTOC', 'flagUVA_254', 'flagUVA_280')
+
+   Expected carbon columns and ordering.
+
+webb_utils.db_mappings.upload_columns.CARBON_GAS_COLUMNS = ('record_number', 'analyzing_lab', 'ch4', 'co2', 'flagch4', 'flagco2')
+
+   Expected carbon gas columns and ordering.
+
+webb_utils.db_mappings.upload_columns.CATION_COLUMNS = ('record_number', 'analyzing_lab', 'Ca', 'Mg', 'Na', 'K', 'Fe', 'Mn', 'flagCa', 'flagMg', 'flagNa', 'flagK', 'flagFe', 'flagMn')
+
+   Expected cation columns and ordering.
+
+webb_utils.db_mappings.upload_columns.DV_RESULTS_COLUMNS = ('station_no', 'parameter_code', 'result_date', 'result_value', 'dv_flag')
+
+   Expected DV result columns and ordering.
+
+webb_utils.db_mappings.upload_columns.FIELD_COLUMNS = ('record_number', 'gage_height', 'fldcond', 'fldph', 'wtemp', 'atemp', 'o2', 'weather', 'sulfide', 'redox', 'particulates')
+
+   Expected field columns and ordering.
+
+webb_utils.db_mappings.upload_columns.FLUX_CHAMBER_COLUMNS = ('station_no', 'meas_date', 'meas_minute', 'co2_light', 'co2_dark', 'remark')
+
+   Expected flux chamber columns and ordering.
+
+webb_utils.db_mappings.upload_columns.GAGE_HT_MEAS_COLUMNS = ('station_no', 'meas_date', 'meas_time', 'ht_above_rp', 'local_ws_elev', 'ngvd_ws_elev', 'data_source')
+
+   Expected gage height measurement columns and ordering.
+
+webb_utils.db_mappings.upload_columns.GAGE_HT_RP_COLUMNS = ('station_no', 'rp_id', 'rp_date', 'rp_valid', 'local_rp_elev', 'ngvd_rp_elev')
+
+   Expected gage height rp columns and ordering.
+
+webb_utils.db_mappings.upload_columns.ISOTOPE_STRONTIUM_COLUMNS = ('record_number', 'analyzing_lab', 'Sr_87#Sr_86', 'Sr_87', 'flagSr_87#Sr_86', 'flagSr_87')
+
+   Expected strontium isotope columns and ordering.
+
+webb_utils.db_mappings.upload_columns.ISOTOPE_WATER_COLUMNS = ('record_number', 'analyzing_lab', 'D', 'O_18', 'flagD', 'flagO_18', 'H_3', 'SD_H_3', 'flagH_3', 'lab_id')
+
+   Expected water isotope columns and ordering.
+
+webb_utils.db_mappings.upload_columns.MERCURY_COLUMNS = ('record_number', 'analyzing_lab', 'analysis_date', 'results_id', 'bottle_id', 'parameter', 'ddl', 'd_flag', 'value', 'units', 'qa_flags', 'field_id', 'lab_comment')
+
+   Expected mercury columns and ordering.
+
+webb_utils.db_mappings.upload_columns.NUTRIENT_COLUMNS = ('record_number', 'filter_type', 'analyzing_lab', 'SiO2', 'NO3', 'NH4', 'NH4orgN', 'N', 'PO4', 'P', 'flagSiO2', 'flagNO3', 'flagNH4', 'flagNH4orgN', 'flagN', 'flagPO4', 'flagP')
+
+   Expected nutrient columns and ordering.
+
+webb_utils.db_mappings.upload_columns.PARAMETERS_COLUMNS = ('parameter_code', 'parameter_short_name', 'parameter_code_name', 'parameter_name', 'constituent_name', 'cas_num', 'report_units', 'record_source')
+
+   Expected parameter columns and ordering.
+
+webb_utils.db_mappings.upload_columns.QMEAS_COLUMNS = ('meas_no', 'meas_dt', 'made_by', 'width', 'area', 'velocity', 'gage_ht', 'discharge', 'shift_adj', 'pct_diff', 'nu_sect', 'ght_change', 'meas_time', 'meas_rated', 'control_cond', 'station_no')
+
+   Expected qmeas columns and ordering.
+
+webb_utils.db_mappings.upload_columns.RARE_CATION_COLUMNS = ('record_number', 'analyzing_lab', 'Li', 'B', 'Al', 'Rb', 'Sr', 'Ba', 'Pb', 'U', 'flagLi', 'flagB', 'flagAl', 'flagRb', 'flagSr', 'flagBa', 'flagPb', 'flagU')
+
+   Expected rare cation columns and ordering.
+
+webb_utils.db_mappings.upload_columns.RAW_CATION_COLUMNS = ('record_number', 'analyzing_lab', 'flagraw_K', 'raw_K', 'flagraw_Ca', 'raw_Ca', 'flagraw_Mg', 'raw_Mg', 'flagraw_S', 'raw_S', 'flagraw_Mn', 'raw_Mn', 'flagraw_Fe', 'raw_Fe', 'flagraw_Na', 'raw_Na')
+
+   Expected raw cation columns and ordering.
+
+webb_utils.db_mappings.upload_columns.RP_DESC_COLUMNS = ('station_no', 'rp_id', 'rp_desc')
+
+   Expected RP description columns and ordering.
+
+webb_utils.db_mappings.upload_columns.SAMPLE_COLUMNS = ('station_no', 'depth', 'sample_date', 'sample_time', 'taken_by', 'sampling_method', 'sample_medium', 'sample_type', 'sample_sequence', 'record_number', 'field_id', 'composite_end_date')
+
+   Expected sample columns and ordering.
+
+webb_utils.db_mappings.upload_columns.SAMPLE_GROUP_COLUMNS = ('group_type', 'group_date', 'group_sort', 'record_number')
+
+   Expected sample group columns and ordering.
+
+webb_utils.db_mappings.upload_columns.SITE_COLUMNS = ('station_no', 'depth', 'station_name', 'short_name', 'latitude', 'longitude', 'nest', 'site_type_cd', 'site_group_cd', 'aquifer', 'county_code', 'county_name', 'hyd_unit', 'distance', 'elevation', 'length', 'nwis_station_no', 'dec_latitude', 'dec_longitude')
+
+   Expected site columns and ordering.
+
+webb_utils.db_mappings.upload_columns.SOIL_PROFILE_COLUMNS = ('station_no', 'depth', 'sample_date', 'sample_time', 'taken_by', 'sampling_method', 'sample_medium', 'sample_type', 'sample_sequence', 'record_number')
+
+   Expected soil profile columns and ordering.
+
+webb_utils.db_mappings.upload_columns.TEST_SITE_COLUMNS = ('station_no', 'nwis_station_no', 'depth', 'station_name', 'short_name', 'nest_name', 'latitude', 'longitude', 'x_wtm', 'y_wtm', 'site_type_cd', 'site_group_cd', 'aquifer', 'county_code', 'county_name', 'hyd_unit', 'distance', 'elevation', 'length')
+
+   Expected test site columns and ordering.
+
+webb_utils.db_mappings.upload_columns.UV_RESULTS_COLUMNS = ('station_no', 'parameter_code', 'result_date', 'result_time', 'edited_value', 'computed_value')
+
+   Expected UV result columns and ordering.
+
+webb_utils.db_mappings.upload_columns.WELL_HEAD_MEAS_COLUMNS = ('station_no', 'depth', 'meas_date', 'depth_to_ws', 'ws_elev', 'ngvd_ws_elev')
+
+   Expected well head measurement columns and ordering.
+
+webb_utils.db_mappings.upload_columns.WELL_HEAD_MP_COLUMNS = ('station_no', 'mp_date', 'mp_valid', 'mp_desc', 'local_mp_elev', 'ngvd_mp_elev')
+
+   Expected well head mp columns and ordering.
+
+webb_utils.db_mappings.upload_columns.WSLH_ANION_COLUMNS = ('record_number', 'analyzing_lab', 'flagCl', 'Cl', 'flagNO3', 'NO3', 'flagSO4', 'SO4')
+
+   Expected WI State Hygiene Lab anion result columns and ordering.
+
+webb_utils.db_mappings.upload_columns.WSLH_CATION_COLUMNS = ('record_number', 'analyzing_lab', 'Ca', 'Mg', 'Na', 'K', 'Fe', 'Mn', 'flagCa', 'flagMg', 'flagNa', 'flagK', 'flagFe', 'flagMn')
+
+   Expected WI State Hygiene Lab cation result columns and ordering.
+
+webb_utils.db_mappings.upload_columns.WWW_SITES_COLUMNS = ('station', 'name', 'short_name', 'latitude', 'longitude', 'elevation', 'depth', 'state', 'county', 'watershed')
+
+   Expected WWW site result columns and ordering.
